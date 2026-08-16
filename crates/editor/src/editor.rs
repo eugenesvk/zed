@@ -2626,7 +2626,7 @@ impl Editor {
             if let Some(buffer) = multi_buffer.read(cx).as_singleton() {
                 editor.register_buffer(buffer.read(cx).remote_id(), cx);
             }
-            editor.report_editor_event(ReportEditorEvent::EditorOpened, None, cx);
+            // editor.report_editor_event(ReportEditorEvent::EditorOpened, None, cx);
         }
 
         editor
@@ -10342,7 +10342,7 @@ impl Editor {
             .collect()
     }
 
-    fn report_editor_event(
+    /*fn report_editor_event(
         &self,
         reported_event: ReportEditorEvent,
         file_extension: Option<String>,
@@ -10404,7 +10404,7 @@ impl Editor {
                 is_via_ssh = project.is_via_remote_server(),
             );
         };
-    }
+    }*/
 
     /// Copy the highlighted chunks to the clipboard as JSON. The format is an array of lines,
     /// with each line being an array of {text, highlight} objects.

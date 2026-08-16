@@ -426,11 +426,11 @@ impl Editor {
                 cursor_position,
                 ..
             } => {
-                self.report_edit_prediction_event(
+                /*self.report_edit_prediction_event(
                     active_edit_prediction.completion_id.clone(),
                     true,
                     cx,
-                );
+                );*/
 
                 match granularity {
                     EditPredictionGranularity::Full => {
@@ -722,7 +722,7 @@ impl Editor {
                 .as_ref()
                 .and_then(|active_completion| active_completion.completion_id.clone());
 
-            self.report_edit_prediction_event(completion_id, false, cx);
+            // self.report_edit_prediction_event(completion_id, false, cx);
         }
 
         if let Some(provider) = self.edit_prediction_provider() {
@@ -1613,7 +1613,7 @@ impl Editor {
         .unwrap_or(false)
     }
 
-    fn report_edit_prediction_event(&self, id: Option<SharedString>, accepted: bool, cx: &App) {
+    /*fn report_edit_prediction_event(&self, id: Option<SharedString>, accepted: bool, cx: &App) {
         let Some(provider) = self.edit_prediction_provider() else {
             return;
         };
@@ -1644,7 +1644,7 @@ impl Editor {
             suggestion_accepted = accepted,
             file_extension = extension,
         );
-    }
+    }*/
 
     fn open_editor_at_anchor(
         snapshot: &language::BufferSnapshot,
