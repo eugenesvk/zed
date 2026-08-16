@@ -478,8 +478,6 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut App) {
                 cx.background_executor().timer(TELEMETRY_INTERVAL).await;
                 if cx
                     .update(|window, cx| {
-                        input_latency_ui::report_input_latency_telemetry(window, cx);
-                        input_latency_ui::report_frame_duration_telemetry(window, cx);
                     })
                     .is_err()
                 {
@@ -920,7 +918,6 @@ fn register_actions(
         .register_action(|_, _: &GetMerch, _, cx| cx.open_url(MERCH_URL))
         .register_action(
             |workspace: &mut Workspace,
-             _: &input_latency_ui::DumpInputLatencyHistogram,
              window: &mut Window,
              cx: &mut Context<Workspace>| {
                 let project = workspace.project().clone();
@@ -937,16 +934,9 @@ fn register_actions(
                 } else {
                     None
                 };
-                let report_data = input_latency_ui::snapshot_input_latency_report(
-                    window,
-                    reported_by,
-                    cx,
-                );
                 cx.spawn_in(window, async move |workspace, cx| {
                     let report = cx
-                        .background_spawn(async move {
-                            input_latency_ui::format_input_latency_report(&report_data)
-                        })
+                        .background_spawn()
                         .await;
                     let buffer = project
                         .update(cx, |project, cx| project.create_buffer(None, true, cx))
