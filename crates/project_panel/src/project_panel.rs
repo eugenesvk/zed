@@ -7555,7 +7555,6 @@ impl Render for ProjectPanel {
                         KeyBinding::for_action_in(&workspace::Open::default(), &focus_handle, cx),
                     )
                     .on_open_project(move |_, window, cx| {
-                        telemetry::event!("Project Panel Add Project Clicked");
                         workspace
                             .update(cx, |_, cx| {
                                 window
@@ -7564,7 +7563,6 @@ impl Render for ProjectPanel {
                             .log_err();
                     })
                     .on_clone_repo(move |_, window, cx| {
-                        telemetry::event!("Project Panel Clone Repo Clicked");
                         workspace_clone
                             .update(cx, |_, cx| {
                                 window.dispatch_action(git::Clone.boxed_clone(), cx);
