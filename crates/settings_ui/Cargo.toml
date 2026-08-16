@@ -17,7 +17,6 @@ test-support = []
 
 [dependencies]
 anyhow.workspace = true
-audio.workspace = true
 client.workspace = true
 component.workspace = true
 collections.workspace = true
@@ -46,7 +45,6 @@ regex.workspace = true
 platform_title_bar.workspace = true
 project.workspace = true
 release_channel.workspace = true
-rodio.workspace = true
 schemars.workspace = true
 search.workspace = true
 serde.workspace = true
