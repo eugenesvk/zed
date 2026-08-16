@@ -149,9 +149,9 @@ impl Item for KeyContextView {
         "Keyboard Context".into()
     }
 
-    fn telemetry_event_text(&self) -> Option<&'static str> {
+    /*fn telemetry_event_text(&self) -> Option<&'static str> {
         None
-    }
+    }*/
 
     fn can_split(&self) -> bool {
         true
