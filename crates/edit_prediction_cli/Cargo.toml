@@ -59,7 +59,6 @@ watch.workspace = true
 edit_prediction = { workspace = true, features = ["cli-support"] }
 edit_prediction_context.workspace = true
 edit_prediction_metrics = { workspace = true, features = ["tree-sitter"] }
-telemetry_events.workspace = true
 wasmtime.workspace = true
 rand.workspace = true
 similar = "2.7.0"

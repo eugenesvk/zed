@@ -24,7 +24,6 @@ parking_lot.workspace = true
 project.workspace = true
 serde.workspace = true
 smallvec.workspace = true
-telemetry.workspace = true
 text.workspace = true
 tree-sitter = { workspace = true, features = ["wasm"] }
 util.workspace = true
