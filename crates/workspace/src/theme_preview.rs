@@ -93,9 +93,9 @@ impl Item for ThemePreview {
         format!("{} Preview", name).into()
     }
 
-    fn telemetry_event_text(&self) -> Option<&'static str> {
+    /*fn telemetry_event_text(&self) -> Option<&'static str> {
         None
-    }
+    }*/
 
     fn can_split(&self) -> bool {
         true
