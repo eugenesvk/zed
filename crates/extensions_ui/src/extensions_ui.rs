@@ -1548,9 +1548,6 @@ impl Item for ExtensionsPage {
         "Extensions".into()
     }
 
-    /*fn telemetry_event_text(&self) -> Option<&'static str> {
-        Some("Extensions Page Opened")
-    }*/
 
     fn show_toolbar(&self) -> bool {
         false
