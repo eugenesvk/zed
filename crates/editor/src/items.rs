@@ -879,7 +879,6 @@ impl Item for Editor {
     }
 
     fn on_removed(&self, cx: &mut Context<Self>) {
-        // self.report_editor_event(ReportEditorEvent::Closed, None, cx);
     }
 
     fn deactivated(&mut self, _: &mut Window, cx: &mut Context<Self>) {
@@ -943,11 +942,6 @@ impl Item for Editor {
         cx: &mut Context<Self>,
     ) -> Task<Result<()>> {
         // Add meta data tracking # of auto saves
-        /*if options.autosave {
-            self.report_editor_event(ReportEditorEvent::Saved { auto_saved: true }, None, cx);
-        } else {
-            self.report_editor_event(ReportEditorEvent::Saved { auto_saved: false }, None, cx);
-        }*/
 
         let buffers = self.buffer().clone().read(cx).all_buffers();
         let buffers = buffers
@@ -1019,13 +1013,6 @@ impl Item for Editor {
             .read(cx)
             .as_singleton()
             .expect("cannot call save_as on an excerpt list");
-
-        /*let file_extension = path.path.extension().map(|a| a.to_string());
-        self.report_editor_event(
-            ReportEditorEvent::Saved { auto_saved: false },
-            file_extension,
-            cx,
-        );*/
 
         project.update(cx, |project, cx| project.save_buffer_as(buffer, path, cx))
     }
