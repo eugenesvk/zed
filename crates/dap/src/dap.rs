@@ -39,15 +39,15 @@ pub async fn configure_tcp_connection(
     Ok((host, port, timeout))
 }
 
-#[derive(Clone, Copy, Serialize)]
+/*#[derive(Clone, Copy, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum TelemetrySpawnLocation {
     Gutter,
     ScenarioList,
     Custom,
-}
+}*/
 
-pub fn send_telemetry(scenario: &DebugScenario, location: TelemetrySpawnLocation, cx: &App) {
+/*pub fn send_telemetry(scenario: &DebugScenario, location: TelemetrySpawnLocation, cx: &App) {
     let Some(adapter) = cx.global::<DapRegistry>().adapter(&scenario.adapter) else {
         return;
     };
@@ -73,4 +73,4 @@ pub fn send_telemetry(scenario: &DebugScenario, location: TelemetrySpawnLocation
         );
     })
     .detach();
-}
+}*/
