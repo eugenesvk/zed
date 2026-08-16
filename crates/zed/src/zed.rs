@@ -1058,7 +1058,6 @@ fn register_actions(
             }
         })
         .register_action(|workspace, action: &workspace::Open, window, cx| {
-            telemetry::event!("Project Opened");
             workspace::prompt_for_open_path_and_open(
                 workspace,
                 workspace.app_state().clone(),
@@ -1109,7 +1108,6 @@ fn register_actions(
                     DefaultOpenBehavior::NewWindow
                 )
             });
-            telemetry::event!("Project Opened");
             let paths = workspace.prompt_for_open_path(
                 PathPromptOptions {
                     files: true,
