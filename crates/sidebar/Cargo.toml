@@ -53,7 +53,6 @@ language_model = { workspace = true, features = ["test-support"] }
 release_channel.workspace = true
 semver.workspace = true
 pretty_assertions.workspace = true
-prompt_store.workspace = true
 recent_projects = { workspace = true, features = ["test-support"] }
 serde_json.workspace = true
 fs = { workspace = true, features = ["test-support"] }
