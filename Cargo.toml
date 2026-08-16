@@ -5,13 +5,10 @@ members = [
     "crates/activity_indicator",
     "crates/askpass",
     "crates/assets",
-    "crates/aws_http_client",
-    "crates/bedrock",
     "crates/benchmarks",
     "crates/breadcrumbs",
     "crates/buffer_diff",
     "crates/call",
-    "crates/channel",
     "crates/cli",
     "crates/client",
     "crates/clock",
@@ -233,12 +230,8 @@ action_log = { path = "crates/action_log" }
 activity_indicator = { path = "crates/activity_indicator" }
 askpass = { path = "crates/askpass" }
 assets = { path = "crates/assets" }
-aws_http_client = { path = "crates/aws_http_client" }
-bedrock = { path = "crates/bedrock" }
 breadcrumbs = { path = "crates/breadcrumbs" }
 buffer_diff = { path = "crates/buffer_diff" }
-call = { path = "crates/call" }
-channel = { path = "crates/channel" }
 cli = { path = "crates/cli" }
 client = { path = "crates/client" }
 clock = { path = "crates/clock" }
@@ -460,16 +453,6 @@ async-trait = "0.1"
 async-tungstenite = "0.31.0"
 async-process = "2.5.0"
 async_zip = { version = "0.0.18", features = ["deflate", "deflate64"] }
-aws-config = { version = "1.8.10", features = ["behavior-version-latest"] }
-aws-credential-types = { version = "1.2.8", features = [
-    "hardcoded-credentials",
-] }
-aws-sdk-bedrockruntime = { version = "1.112.0", features = [
-    "behavior-version-latest",
-] }
-aws-sigv4 = { version = "1.4.0", features = ["http1"] }
-aws-smithy-runtime-api = { version = "1.9.2", features = ["http-1x", "client"] }
-aws-smithy-types = { version = "1.3.4", features = ["http-body-1-x"] }
 backtrace = "0.3"
 base64 = "0.22"
 bitflags = "2.6.0"
