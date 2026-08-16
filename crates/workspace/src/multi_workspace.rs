@@ -87,7 +87,6 @@ pub fn sidebar_side_context_menu(
                             SidebarDockPosition::Left => "left",
                             SidebarDockPosition::Right => "right",
                         };
-                        telemetry::event!("Sidebar Side Changed", side = side);
                         settings::update_settings_file(fs.clone(), cx, move |settings, _cx| {
                             settings
                                 .agent
@@ -491,7 +490,6 @@ impl MultiWorkspace {
             SidebarSide::Left => "left",
             SidebarSide::Right => "right",
         };
-        telemetry::event!("Sidebar Toggled", action = "open", side = side);
         self.apply_open_sidebar(cx);
     }
 
@@ -519,7 +517,6 @@ impl MultiWorkspace {
             SidebarSide::Left => "left",
             SidebarSide::Right => "right",
         };
-        telemetry::event!("Sidebar Toggled", action = "close", side = side);
         self.sidebar_open = false;
         for workspace in self.workspaces().cloned().collect::<Vec<_>>() {
             workspace.update(cx, |workspace, _cx| {
@@ -1301,10 +1298,6 @@ impl MultiWorkspace {
         let key = workspace.read(cx).project_group_key(cx);
         let index = self.hold(workspace, window, cx);
         self.pin(index, key, cx);
-        telemetry::event!(
-            "Workspace Added",
-            workspace_count = self.held.iter().filter(|held| held.pinned).count()
-        );
         cx.notify();
     }
 
