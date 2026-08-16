@@ -226,9 +226,6 @@ pub trait Item: Focusable + EventEmitter<Self::Event> + Render + Sized {
         false
     }
 
-    /*fn telemetry_event_text(&self) -> Option<&'static str> {
-        None
-    }*/
 
     /// (model id, Item)
     fn for_each_project_item(
@@ -1657,9 +1654,6 @@ pub mod test {
                 .into()
         }
 
-        /*fn telemetry_event_text(&self) -> Option<&'static str> {
-            None
-        }*/
 
         fn tab_content(&self, params: TabContentParams, _window: &Window, _cx: &App) -> AnyElement {
             self.tab_detail.set(params.detail);
