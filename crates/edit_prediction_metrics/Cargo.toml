@@ -20,7 +20,6 @@ serde.workspace = true
 serde_json = "1.0"
 similar = "2.7.0"
 tree-sitter = { workspace = true, optional = true }
-zeta_prompt.workspace = true
 
 [dev-dependencies]
 indoc.workspace = true

@@ -28,7 +28,6 @@ telemetry.workspace = true
 text.workspace = true
 tree-sitter = { workspace = true, features = ["wasm"] }
 util.workspace = true
-zeta_prompt.workspace = true
 
 [dev-dependencies]
 env_logger.workspace = true
