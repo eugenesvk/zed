@@ -823,7 +823,6 @@ fn open_settings_editor_with(
     cx: &mut App,
     callback: impl FnOnce(&mut SettingsWindow, &mut Window, &mut Context<SettingsWindow>) + 'static,
 ) {
-    telemetry::event!("Settings Viewed");
 
     let existing_window = cx
         .windows()
@@ -1855,8 +1854,6 @@ impl SettingsWindow {
                     window.remove_window();
                 })
                 .ok();
-
-                telemetry::event!("Settings Closed")
             }
         })
         .detach();
@@ -2347,7 +2344,6 @@ impl SettingsWindow {
             .ok();
 
             cx.background_executor().timer(Duration::from_secs(1)).await;
-            telemetry::event!("Settings Searched", query = query)
         }));
     }
 
@@ -2709,7 +2705,6 @@ impl SettingsWindow {
         self.current_file = self.files[ix].0.clone();
 
         if let SettingsUiFile::Project((_, _)) = &self.current_file {
-            telemetry::event!("Setting Project Clicked");
         }
 
         self.build_ui(window, cx);
@@ -2740,7 +2735,6 @@ impl SettingsWindow {
         self.current_file = self.files[ix].0.clone();
 
         if let SettingsUiFile::Project((_, _)) = &self.current_file {
-            telemetry::event!("Setting Project Clicked");
         }
 
         self.last_copied_skill_directory_path = None;
@@ -3207,12 +3201,6 @@ impl SettingsWindow {
                                                 {
                                                     return;
                                                 }
-
-                                                telemetry::event!(
-                                                    "Settings Navigation Clicked",
-                                                    category = category,
-                                                    subcategory = subcategory
-                                                );
 
                                                 this.open_and_scroll_to_navbar_entry(
                                                     entry_index,
@@ -3817,7 +3805,6 @@ impl SettingsWindow {
                 cx: &mut Context<SettingsWindow>,
             ) -> impl IntoElement {
                 if shown_errors.insert(error.clone()) {
-                    telemetry::event!("Settings Error Shown", label = label, error = &error);
                 }
                 Banner::new()
                     .severity(Severity::Warning)
@@ -4644,7 +4631,6 @@ fn update_settings_file(
     cx: &mut App,
     update: impl 'static + Send + FnOnce(&mut SettingsContent, &App),
 ) -> Result<()> {
-    telemetry::event!("Settings Change", setting = file_name, type = file.setting_type());
 
     match file {
         SettingsUiFile::Project((worktree_id, rel_path)) => {
@@ -4937,7 +4923,6 @@ fn render_toggle_button<B: Into<bool> + From<bool> + Copy>(
         .disabled(disabled)
         .on_click({
             move |state, window, cx| {
-                telemetry::event!("Settings Change", setting = field.json_path, type = file.setting_type());
 
                 let state = *state == ui::ToggleState::Selected;
                 update_settings_file(file.clone(), field.json_path, window, cx, move |settings, app| {
