@@ -152,19 +152,6 @@ pub fn report_input_latency_telemetry(window: &Window, cx: &mut App) {
     let frames_with_3_events = count_frames_in_range(&delta_coalesce, 3, 4);
     // frames with 4+ events are implicitly total_frames - (1 + 2 + 3)
 
-    telemetry::event!(
-        "Latency Report",
-        frames_sub4 = frames_sub4,
-        frames_4to8 = frames_4to8,
-        frames_8to16 = frames_8to16,
-        frames_16to33 = frames_16to33,
-        frames_33to100 = frames_33to100,
-        total_frames = total_frames,
-        frames_with_1_event = frames_with_1_event,
-        frames_with_2_events = frames_with_2_events,
-        frames_with_3_events = frames_with_3_events,
-        report_window_seconds = report_window_seconds,
-    );
 }
 
 /// Per-window baselines for frame-duration telemetry, keyed by window id. Kept
@@ -252,20 +239,6 @@ pub fn report_frame_duration_telemetry(window: &Window, cx: &mut App) {
     let intervals_36to100 = count_frames_in_range(&delta_intervals, MS36_NS, MS100_NS);
     // intervals > 100ms are implicitly total_intervals - (the buckets above)
 
-    telemetry::event!(
-        "Frame Duration Report",
-        draws_sub4 = draws_sub4,
-        draws_4to8 = draws_4to8,
-        draws_8to16 = draws_8to16,
-        draws_16to33 = draws_16to33,
-        total_draws = total_draws,
-        intervals_sub9 = intervals_sub9,
-        intervals_9to18 = intervals_9to18,
-        intervals_18to36 = intervals_18to36,
-        intervals_36to100 = intervals_36to100,
-        total_intervals = total_intervals,
-        report_window_seconds = report_window_seconds,
-    );
 }
 
 fn open_window_ids(cx: &App) -> HashSet<WindowId> {
