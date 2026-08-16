@@ -456,7 +456,6 @@ impl CommitModal {
                             .disabled(!can_commit)
                             .child(Label::new(commit_label).size(LabelSize::Small).mr_0p5())
                             .on_click(cx.listener(move |this, _: &ClickEvent, window, cx| {
-                                telemetry::event!("Git Committed", source = "Git Modal");
                                 this.git_panel.update(cx, |git_panel, cx| {
                                     let options = git_panel.commit_options();
                                     git_panel.commit_changes(options, window, cx)
@@ -518,9 +517,7 @@ impl CommitModal {
         });
         if did_execute {
             if is_amend {
-                telemetry::event!("Git Amended", source = "Git Modal");
             } else {
-                telemetry::event!("Git Committed", source = "Git Modal");
             }
             cx.emit(DismissEvent);
         }
@@ -541,7 +538,6 @@ impl CommitModal {
         if self.git_panel.update(cx, |git_panel, cx| {
             git_panel.amend(&self.commit_editor.focus_handle(cx), window, cx)
         }) {
-            telemetry::event!("Git Amended", source = "Git Modal");
             cx.emit(DismissEvent);
         }
     }
