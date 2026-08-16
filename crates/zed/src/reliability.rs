@@ -342,13 +342,6 @@ async fn upload_minidump(
         form = form.text("sentry[user][id]", format!("installation-{}", id))
     }
 
-    ::telemetry::event!(
-        "Minidump Uploaded",
-        panic_message = panic_message,
-        crashed_version = metadata.init.zed_version.clone(),
-        commit_sha = metadata.init.commit_sha.clone(),
-    );
-
     let gpu_count = metadata.gpus.len();
     for (index, gpu) in metadata.gpus.iter().cloned().enumerate() {
         let system_specs::GpuInfo {

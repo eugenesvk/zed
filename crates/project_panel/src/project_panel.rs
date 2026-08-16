@@ -4546,16 +4546,6 @@ impl ProjectPanel {
                 }
                 let elapsed = now.elapsed();
                 if this.last_reported_update.elapsed() > Duration::from_secs(3600) {
-                    telemetry::event!(
-                        "Project Panel Updated",
-                        elapsed_ms = elapsed.as_millis() as u64,
-                        worktree_entries = this
-                            .state
-                            .visible_entries
-                            .iter()
-                            .map(|worktree| worktree.entries.len())
-                            .sum::<usize>(),
-                    )
                 }
                 if this.update_visible_entries_task.focus_filename_editor {
                     this.update_visible_entries_task.focus_filename_editor = false;
