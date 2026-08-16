@@ -27,7 +27,6 @@ gpui = { workspace = true, features = ["bench"] }
 gpui_platform = { workspace = true, features = ["test-support", "font-kit"] }
 itertools.workspace = true
 language = { workspace = true, features = ["test-support"] }
-language_model = { workspace = true, features = ["test-support"] }
 lsp = { workspace = true, features = ["test-support"] }
 markdown.workspace = true
 multi_buffer.workspace = true

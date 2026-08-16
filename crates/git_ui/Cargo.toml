@@ -37,7 +37,6 @@ git.workspace = true
 gpui.workspace = true
 itertools.workspace = true
 language.workspace = true
-language_model.workspace = true
 log.workspace = true
 markdown.workspace = true
 menu.workspace = true

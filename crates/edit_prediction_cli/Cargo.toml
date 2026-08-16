@@ -36,8 +36,6 @@ gpui_tokio.workspace = true
 indoc.workspace = true
 language.workspace = true
 language_extension.workspace = true
-language_model.workspace = true
-language_models.workspace = true
 languages = { workspace = true, features = ["load-grammars"] }
 libc.workspace = true
 log.workspace = true
