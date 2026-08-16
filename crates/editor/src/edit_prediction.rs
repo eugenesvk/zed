@@ -1613,39 +1613,6 @@ impl Editor {
         .unwrap_or(false)
     }
 
-    /*fn report_edit_prediction_event(&self, id: Option<SharedString>, accepted: bool, cx: &App) {
-        let Some(provider) = self.edit_prediction_provider() else {
-            return;
-        };
-
-        let buffer_snapshot = self.buffer.read(cx).snapshot(cx);
-        let Some((position, _)) =
-            buffer_snapshot.anchor_to_buffer_anchor(self.selections.newest_anchor().head())
-        else {
-            return;
-        };
-        let Some(buffer) = self.buffer.read(cx).buffer(position.buffer_id) else {
-            return;
-        };
-
-        let extension = buffer
-            .read(cx)
-            .file()
-            .and_then(|file| Some(file.path().extension()?.to_string()));
-
-        let event_type = match accepted {
-            true => "Edit Prediction Accepted",
-            false => "Edit Prediction Discarded",
-        };
-        telemetry::event!(
-            event_type,
-            provider = provider.name(),
-            prediction_id = id,
-            suggestion_accepted = accepted,
-            file_extension = extension,
-        );
-    }*/
-
     fn open_editor_at_anchor(
         snapshot: &language::BufferSnapshot,
         target: language::Anchor,
