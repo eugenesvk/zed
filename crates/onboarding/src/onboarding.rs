@@ -400,9 +400,9 @@ impl Item for Onboarding {
         "Onboarding".into()
     }
 
-    fn telemetry_event_text(&self) -> Option<&'static str> {
+    /*fn telemetry_event_text(&self) -> Option<&'static str> {
         Some("Onboarding Page Opened")
-    }
+    }*/
 
     fn show_toolbar(&self) -> bool {
         false
