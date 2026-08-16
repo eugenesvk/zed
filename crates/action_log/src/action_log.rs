@@ -635,7 +635,7 @@ impl ActionLog {
         &mut self,
         buffer: Entity<Buffer>,
         buffer_range: Range<impl language::ToPoint>,
-        telemetry: Option<ActionLogTelemetry>,
+        /*telemetry: Option<ActionLogTelemetry>,*/
         cx: &mut Context<Self>,
     ) {
         let Some(tracked_buffer) = self.tracked_buffers.get_mut(&buffer) else {
@@ -697,16 +697,16 @@ impl ActionLog {
                 tracked_buffer.schedule_diff_update(ChangeAuthor::User, cx);
             }
         }
-        if let Some(telemetry) = telemetry {
+        /*if let Some(telemetry) = telemetry {
             telemetry_report_accepted_edits(&telemetry, metrics);
-        }
+        }*/
     }
 
     pub fn reject_edits_in_ranges(
         &mut self,
         buffer: Entity<Buffer>,
         buffer_ranges: Vec<Range<impl language::ToPoint>>,
-        telemetry: Option<ActionLogTelemetry>,
+        /*telemetry: Option<ActionLogTelemetry>,*/
         cx: &mut Context<Self>,
     ) -> (Task<Result<()>>, Option<PerBufferUndo>) {
         let Some(tracked_buffer) = self.tracked_buffers.get_mut(&buffer) else {
@@ -880,23 +880,23 @@ impl ActionLog {
                     .update(cx, |project, cx| project.save_buffer(buffer, cx))
             }
         };
-        if let Some(telemetry) = telemetry {
+        /*if let Some(telemetry) = telemetry {
             telemetry_report_rejected_edits(&telemetry, metrics);
-        }
+        }*/
         (task, undo_info)
     }
 
     pub fn keep_all_edits(
         &mut self,
-        telemetry: Option<ActionLogTelemetry>,
+        /*telemetry: Option<ActionLogTelemetry>,*/
         cx: &mut Context<Self>,
     ) {
         self.tracked_buffers.retain(|buffer, tracked_buffer| {
             let mut metrics = ActionLogMetrics::for_buffer(buffer.read(cx));
             metrics.add_edits(tracked_buffer.unreviewed_edits.edits());
-            if let Some(telemetry) = telemetry.as_ref() {
+            /*if let Some(telemetry) = telemetry.as_ref() {
                 telemetry_report_accepted_edits(telemetry, metrics);
-            }
+            }*/
             match tracked_buffer.status {
                 TrackedBufferStatus::Deleted => false,
                 _ => {
@@ -916,7 +916,7 @@ impl ActionLog {
 
     pub fn reject_all_edits(
         &mut self,
-        telemetry: Option<ActionLogTelemetry>,
+        /*telemetry: Option<ActionLogTelemetry>,*/
         cx: &mut Context<Self>,
     ) -> Task<()> {
         // Clear any previous undo state before starting a new reject operation
@@ -934,7 +934,7 @@ impl ActionLog {
                 buffer.read(cx).remote_id(),
             )];
             let (reject_task, undo_info) =
-                self.reject_edits_in_ranges(buffer, buffer_ranges, telemetry.clone(), cx);
+                self.reject_edits_in_ranges(buffer, buffer_ranges, /*telemetry.clone(),*/ cx);
 
             if let Some(undo) = undo_info {
                 undo_buffers.push(undo);
@@ -1076,11 +1076,11 @@ impl DiffStats {
     }
 }
 
-#[derive(Clone)]
+/*#[derive(Clone)]
 pub struct ActionLogTelemetry {
     pub agent_telemetry_id: SharedString,
     pub session_id: Arc<str>,
-}
+}*/
 
 struct ActionLogMetrics {
     lines_removed: u32,
@@ -1109,7 +1109,7 @@ impl ActionLogMetrics {
     }
 }
 
-fn telemetry_report_accepted_edits(telemetry: &ActionLogTelemetry, metrics: ActionLogMetrics) {
+/*fn telemetry_report_accepted_edits(telemetry: &ActionLogTelemetry, metrics: ActionLogMetrics) {
     telemetry::event!(
         "Agent Edits Accepted",
         agent = telemetry.agent_telemetry_id,
@@ -1118,9 +1118,9 @@ fn telemetry_report_accepted_edits(telemetry: &ActionLogTelemetry, metrics: Acti
         lines_added = metrics.lines_added,
         lines_removed = metrics.lines_removed
     );
-}
+}*/
 
-fn telemetry_report_rejected_edits(telemetry: &ActionLogTelemetry, metrics: ActionLogMetrics) {
+/*fn telemetry_report_rejected_edits(telemetry: &ActionLogTelemetry, metrics: ActionLogMetrics) {
     telemetry::event!(
         "Agent Edits Rejected",
         agent = telemetry.agent_telemetry_id,
@@ -1129,7 +1129,7 @@ fn telemetry_report_rejected_edits(telemetry: &ActionLogTelemetry, metrics: Acti
         lines_added = metrics.lines_added,
         lines_removed = metrics.lines_removed
     );
-}
+}*/
 
 fn apply_non_conflicting_edits(
     patch: &Patch<u32>,
