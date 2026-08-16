@@ -601,11 +601,11 @@ impl PickerDelegate for CommandPaletteDelegate {
 
         let action_ix = self.matches[self.selected_ix].candidate_id;
         let command = self.commands.swap_remove(action_ix);
-        telemetry::event!(
+        /*telemetry::event!(
             "Action Invoked",
             source = "command palette",
             action = command.name
-        );
+        );*/
         self.matches.clear();
         self.commands.clear();
         let command_name = command.name.clone();
