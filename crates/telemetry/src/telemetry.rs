@@ -21,13 +21,16 @@ pub use telemetry_events::FlexibleEvent as Event;
 #[macro_export]
 macro_rules! event {
     ($name:expr) => {{
+        /*
         let event = $crate::Event {
             event_type: $name.to_string(),
             event_properties: std::collections::HashMap::new(),
         };
         $crate::send_event(event);
+        */
     }};
     ($name:expr, $($key:ident $(= $value:expr)?),+ $(,)?) => {{
+        /*
         let event = $crate::Event {
             event_type: $name.to_string(),
             event_properties: std::collections::HashMap::from([
@@ -40,9 +43,11 @@ macro_rules! event {
             ]),
         };
         $crate::send_event(event);
+        */
     }};
 }
 
+/*
 #[macro_export]
 macro_rules! serialize_property {
     ($key:ident) => {
@@ -58,9 +63,10 @@ pub fn send_event(event: Event) {
         queue.unbounded_send(event).ok();
     }
 }
+*/
 
 pub fn init(tx: mpsc::UnboundedSender<Event>) {
-    TELEMETRY_QUEUE.set(tx).ok();
+    // TELEMETRY_QUEUE.set(tx).ok();
 }
 
-static TELEMETRY_QUEUE: OnceLock<mpsc::UnboundedSender<Event>> = OnceLock::new();
+// static TELEMETRY_QUEUE: OnceLock<mpsc::UnboundedSender<Event>> = OnceLock::new();
