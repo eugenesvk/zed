@@ -26,7 +26,6 @@ anyhow.workspace = true
 async-channel.workspace = true
 askpass.workspace = true
 clap.workspace = true
-client.workspace = true
 collections.workspace = true
 crashes.workspace = true
 dap_adapters.workspace = true
