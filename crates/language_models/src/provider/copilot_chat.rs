@@ -32,7 +32,7 @@ impl CopilotChatLanguageModelProvider {
     pub fn new(cx: &mut App) -> Self {
         let state = cx.new(|cx| {
             let copilot_chat_subscription = CopilotChat::global(cx)
-                .map(|copilot_chat| cx.observe(&copilot_chat, |_, _, cx| cx.notify()));
+                .map(|copilot_chat| cx.observe( |_, _, cx| cx.notify()));
             State {
                 _copilot_chat_subscription: copilot_chat_subscription,
                 _settings_subscription: cx.observe_global::<SettingsStore>(|_, cx| {
@@ -60,9 +60,9 @@ impl CopilotChatLanguageModelProvider {
     fn create_language_model(
         &self,
         model: CopilotChatModel,
-        copilot_chat: Entity<CopilotChat>,
+        
     ) -> Arc<dyn LanguageModel> {
-        create_language_model(model, copilot_chat)
+        create_language_model(model, )
     }
 }
 
@@ -88,9 +88,9 @@ impl LanguageModelProvider for CopilotChatLanguageModelProvider {
     }
 
     fn default_model(&self, cx: &App) -> Option<Arc<dyn LanguageModel>> {
-        let copilot_chat = CopilotChat::global(cx)?;
+        
         let model = copilot_chat.read(cx).models()?.first()?.clone();
-        Some(self.create_language_model(model, copilot_chat))
+        Some(self.create_language_model(model, ))
     }
 
     fn default_fast_model(&self, cx: &App) -> Option<Arc<dyn LanguageModel>> {
@@ -109,7 +109,7 @@ impl LanguageModelProvider for CopilotChatLanguageModelProvider {
         models
             .iter()
             .cloned()
-            .map(|model| self.create_language_model(model, copilot_chat.clone()))
+            .map(|model| self.create_language_model(model, ))
             .collect()
     }
 
