@@ -1394,12 +1394,10 @@ impl Render for LspButton {
         div().child(
             PopoverMenu::new("lsp-tool")
                 .on_open(Rc::new(move |_window, cx| {
-                    let copilot_enabled = all_language_settings(None, cx).edit_predictions.provider
-                        == EditPredictionProvider::Copilot;
+                    
                     telemetry::event!(
                         "Toolbar Menu Opened",
                         name = "Language Servers",
-                        copilot_enabled,
                         is_via_ssh,
                     );
                 }))
