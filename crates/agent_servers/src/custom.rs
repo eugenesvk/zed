@@ -248,9 +248,7 @@ impl AgentServer for CustomAgentServer {
         let store = delegate.store.downgrade();
         cx.spawn(async move |cx| {
             if is_registry_agent && agent_id.as_ref() == GEMINI_ID {
-                if let Some(api_key) = cx.update(api_key_for_gemini_cli).await.ok() {
-                    extra_env.insert("GEMINI_API_KEY".into(), api_key);
-                }
+                
             }
             let command = store
                 .update(cx, |store, cx| {
@@ -285,22 +283,7 @@ impl AgentServer for CustomAgentServer {
     }
 }
 
-fn api_key_for_gemini_cli(cx: &mut App) -> Task<Result<String>> {
-    let env_var = EnvVar::new("GEMINI_API_KEY".into()).or(EnvVar::new("GOOGLE_AI_API_KEY".into()));
-    if let Some(key) = env_var.value {
-        return Task::ready(Ok(key));
-    }
-    let credentials_provider = zed_credentials_provider::global(cx);
-    let api_url = google_ai::API_URL.to_string();
-    cx.spawn(async move |cx| {
-        Ok(
-            ApiKey::load_from_system_keychain(&api_url, credentials_provider.as_ref(), cx)
-                .await?
-                .key()
-                .to_string(),
-        )
-    })
-}
+
 
 fn is_registry_agent(agent_id: impl Into<AgentId>, cx: &App) -> bool {
     let agent_id = agent_id.into();
