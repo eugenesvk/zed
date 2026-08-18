@@ -48,7 +48,7 @@ trait InstalledApp {
 
 #[derive(Parser, Debug)]
 #[command(
-    name = "zed",
+    name = "zedless",
     disable_version_flag = true,
     before_help = "The Zed CLI binary.
 This CLI is a separate binary that invokes Zed.
@@ -1064,7 +1064,7 @@ mod flatpak {
                 )
                 .into(),
             );
-            args.push(flatpak_dir.join("bin").join("zed").into());
+            args.push(flatpak_dir.join("bin").join("zedless").into());
 
             let mut is_app_location_set = false;
             for arg in &env::args_os().collect::<Vec<_>>()[1..] {
