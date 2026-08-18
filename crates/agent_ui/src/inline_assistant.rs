@@ -1,5 +1,5 @@
 use language_models::provider::anthropic::telemetry::{
-    AnthropicCompletionType, AnthropicEventData, AnthropicEventType, 
+       
 };
 use std::mem;
 use std::ops::Range;
@@ -984,18 +984,10 @@ impl InlineAssistant {
                 
                 let model_provider_id = model.model.provider_id().to_string();
 
-                let (phase, event_type, anthropic_event_type) = if undo {
-                    (
-                        "rejected",
-                        "Assistant Response Rejected",
-                        AnthropicEventType::Reject,
-                    )
+                let (phase, event_type) = if undo {
+                    ("rejected", "Assistant Response Rejected")
                 } else {
-                    (
-                        "accepted",
-                        "Assistant Response Accepted",
-                        AnthropicEventType::Accept,
-                    )
+                    ("accepted", "Assistant Response Accepted")
                 };
 
                 telemetry::event!(

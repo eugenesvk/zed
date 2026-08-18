@@ -114,11 +114,8 @@ mod thread_view;
 pub use message_queue::*;
 pub use thread_view::*;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-enum ThreadFeedback {
-    Positive,
-    Negative,
-}
+
+
 
 #[derive(Debug)]
 pub(crate) enum ThreadError {
@@ -1488,7 +1485,7 @@ impl ConversationView {
                 self.focus_handle.focus(window, cx)
             }
         }
-        self.emit_load_error_telemetry(&err);
+        
         self.set_server_state(ServerState::LoadError { error: err }, cx);
     }
 
@@ -2679,23 +2676,7 @@ impl ConversationView {
         }
     }
 
-    fn emit_load_error_telemetry(&self, error: &LoadError) {
-        let error_kind = match error {
-            LoadError::Unsupported { .. } => "unsupported",
-            LoadError::FailedToInstall(_) => "failed_to_install",
-            LoadError::Exited { .. } => "exited",
-            LoadError::Other(_) => "other",
-        };
-
-        let agent_name = self.agent.agent_id();
-
-        telemetry::event!(
-            "Agent Panel Error Shown",
-            agent = agent_name,
-            kind = error_kind,
-            message = error.to_string(),
-        );
-    }
+    
 
     fn render_load_error(
         &self,

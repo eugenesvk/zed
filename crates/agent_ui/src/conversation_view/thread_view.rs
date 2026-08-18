@@ -55,150 +55,10 @@ use super::*;
 
 const DATA_RETENTION_LEARN_MORE_URL: &str = "https://support.claude.com/en/articles/15425996-data-retention-practices-for-mythos-class-models";
 
-#[derive(Default)]
-struct ThreadFeedbackState {
-    feedback: Option<ThreadFeedback>,
-    comments_editor: Option<Entity<Editor>>,
-}
 
-impl ThreadFeedbackState {
-    pub fn submit(
-        &mut self,
-        thread: Entity<AcpThread>,
-        feedback: ThreadFeedback,
-        window: &mut Window,
-        cx: &mut App,
-    ) {
-        let Some(telemetry) = thread.read(cx).connection().telemetry() else {
-            return;
-        };
 
-        let project = thread.read(cx).project().read(cx);
-        let client = project.client();
-        let user_store = project.user_store();
-        let organization = user_store.read(cx).current_organization();
 
-        if self.feedback == Some(feedback) {
-            return;
-        }
 
-        self.feedback = Some(feedback);
-        match feedback {
-            ThreadFeedback::Positive => {
-                self.comments_editor = None;
-            }
-            ThreadFeedback::Negative => {
-                self.comments_editor = Some(Self::build_feedback_comments_editor(window, cx));
-            }
-        }
-        let session_id = thread.read(cx).session_id().clone();
-        let parent_session_id = thread.read(cx).parent_session_id().cloned();
-        
-        let task = ;
-        let rating = match feedback {
-            ThreadFeedback::Positive => "positive",
-            ThreadFeedback::Negative => "negative",
-        };
-        cx.background_spawn(async move {
-            let thread = task.await?;
-
-            client
-                .cloud_client()
-                .submit_agent_feedback(SubmitAgentThreadFeedbackBody {
-                    organization_id: organization.map(|organization| organization.id.clone()),
-                    agent: agent_telemetry_id.to_string(),
-                    session_id: session_id.to_string(),
-                    parent_session_id: parent_session_id.map(|id| id.to_string()),
-                    rating: rating.to_string(),
-                    thread,
-                })
-                .await?;
-
-            anyhow::Ok(())
-        })
-        .detach_and_log_err(cx);
-    }
-
-    pub fn submit_comments(&mut self, thread: Entity<AcpThread>, cx: &mut App) {
-        let Some(telemetry) = thread.read(cx).connection().telemetry() else {
-            return;
-        };
-
-        let Some(comments) = self
-            .comments_editor
-            .as_ref()
-            .map(|editor| editor.read(cx).text(cx))
-            .filter(|text| !text.trim().is_empty())
-        else {
-            return;
-        };
-
-        self.comments_editor.take();
-
-        let project = thread.read(cx).project().read(cx);
-        let client = project.client();
-        let user_store = project.user_store();
-        let organization = user_store.read(cx).current_organization();
-
-        let session_id = thread.read(cx).session_id().clone();
-        
-        let task = ;
-        cx.background_spawn(async move {
-            let thread = task.await?;
-
-            client
-                .cloud_client()
-                .submit_agent_feedback_comments(SubmitAgentThreadFeedbackCommentsBody {
-                    organization_id: organization.map(|organization| organization.id.clone()),
-                    agent: agent_telemetry_id.to_string(),
-                    session_id: session_id.to_string(),
-                    comments,
-                    thread,
-                })
-                .await?;
-
-            anyhow::Ok(())
-        })
-        .detach_and_log_err(cx);
-    }
-
-    pub fn clear(&mut self) {
-        *self = Self::default()
-    }
-
-    pub fn dismiss_comments(&mut self) {
-        self.comments_editor.take();
-    }
-
-    fn build_feedback_comments_editor(window: &mut Window, cx: &mut App) -> Entity<Editor> {
-        let buffer = cx.new(|cx| {
-            let empty_string = String::new();
-            MultiBuffer::singleton(cx.new(|cx| Buffer::local(empty_string, cx)), cx)
-        });
-
-        let editor = cx.new(|cx| {
-            let mut editor = Editor::new(
-                editor::EditorMode::AutoHeight {
-                    min_lines: 1,
-                    max_lines: Some(4),
-                },
-                buffer,
-                None,
-                window,
-                cx,
-            );
-            editor.set_placeholder_text(
-                "What went wrong? Share your feedback so we can improve.",
-                window,
-                cx,
-            );
-            editor
-        });
-
-        editor.read(cx).focus_handle(cx).focus(window, cx);
-        editor
-    }
-}
 
 struct GeneratingSpinner {
     variant: SpinnerVariant,
@@ -587,8 +447,8 @@ pub struct ThreadView {
     pub(super) thread_error: Option<ThreadError>,
     pub thread_error_markdown: Option<Entity<Markdown>>,
     pub token_limit_callout_dismissed: bool,
-    pub last_token_limit_telemetry: Option<acp_thread::TokenUsageRatio>,
-    thread_feedback: ThreadFeedbackState,
+    
+    
     pub list_state: ListState,
     pub session_capabilities: SharedSessionCapabilities,
     pub expanded_tool_call_raw_inputs: HashSet<acp::ToolCallId>,
@@ -1007,8 +867,8 @@ impl ThreadView {
             thread_error: None,
             thread_error_markdown: None,
             token_limit_callout_dismissed: false,
-            last_token_limit_telemetry: None,
-            thread_feedback: Default::default(),
+            
+            
             expanded_tool_call_raw_inputs: HashSet::default(),
             collapsed_sandbox_authorization_details: HashSet::default(),
             collapsed_sandbox_network_details: HashSet::default(),
@@ -1157,11 +1017,11 @@ impl ThreadView {
     ) {
         match command {
             PromptLocalCommand::ThumbsUp => {
-                self.handle_feedback_click(ThreadFeedback::Positive, window, cx);
+                
                 self.show_local_command_toast("Thanks for your feedback!", cx);
             }
             PromptLocalCommand::ThumbsDown => {
-                self.handle_feedback_click(ThreadFeedback::Negative, window, cx);
+                
             }
         }
     }
@@ -1423,50 +1283,12 @@ impl ThreadView {
         if let Some(usage) = self.thread.read(cx).token_usage() {
             if let Some(tokens) = &mut self.turn_fields.turn_tokens {
                 *tokens += usage.output_tokens;
-                self.emit_token_limit_telemetry_if_needed(cx);
+                
             }
         }
     }
 
-    fn emit_token_limit_telemetry_if_needed(&mut self, cx: &App) {
-        let (ratio, agent_telemetry_id, session_id) = {
-            let thread_data = self.thread.read(cx);
-            let Some(token_usage) = thread_data.token_usage() else {
-                return;
-            };
-            (
-                token_usage.ratio(),
-                thread_data.connection().telemetry_id(),
-                thread_data.session_id().clone(),
-            )
-        };
-
-        let kind = match ratio {
-            acp_thread::TokenUsageRatio::Normal => {
-                self.last_token_limit_telemetry = None;
-                return;
-            }
-            acp_thread::TokenUsageRatio::Warning => "warning",
-            acp_thread::TokenUsageRatio::Exceeded => "exceeded",
-        };
-
-        let should_skip = self
-            .last_token_limit_telemetry
-            .as_ref()
-            .is_some_and(|last| *last >= ratio);
-        if should_skip {
-            return;
-        }
-
-        self.last_token_limit_telemetry = Some(ratio);
-
-        telemetry::event!(
-            "Agent Token Limit Warning",
-            agent = 
-            session_id = session_id,
-            kind = kind,
-        );
-    }
+    
 
     // sending
 
@@ -1567,7 +1389,7 @@ impl ThreadView {
         // reads the editor lazily, so clearing first would wipe the contents.
         let contents = self.resolve_message_contents(&message_editor, cx);
         self.thread_error.take();
-        self.thread_feedback.clear();
+        
         self.editing_message.take();
 
         cx.spawn_in(window, async move |this, cx| {
@@ -1622,7 +1444,7 @@ impl ThreadView {
         let contents = self.resolve_message_contents(&message_editor, cx);
 
         self.thread_error.take();
-        self.thread_feedback.clear();
+        
         self.editing_message.take();
         // Sending a message is active engagement: un-freeze the queue if it
         // was paused by a manual stop.
@@ -1856,120 +1678,12 @@ impl ThreadView {
         cx: &mut Context<Self>,
     ) {
         let error = error.into();
-        self.emit_thread_error_telemetry(&error, cx);
+        
         self.thread_error = Some(error);
         cx.notify();
     }
 
-    fn emit_thread_error_telemetry(&self, error: &ThreadError, cx: &mut Context<Self>) {
-        let (error_kind, acp_error_code, message): (&str, Option<SharedString>, SharedString) =
-            match error {
-                ThreadError::PaymentRequired => (
-                    "payment_required",
-                    None,
-                    "You reached your free usage limit. Upgrade to Zed Pro for more prompts."
-                        .into(),
-                ),
-                ThreadError::Refusal => {
-                    let model_or_agent_name = self.current_model_name(cx);
-                    let message = format!(
-                        "{} refused to respond to this prompt. This can happen when a model believes the prompt violates its content policy or safety guidelines, so rephrasing it can sometimes address the issue.",
-                        model_or_agent_name
-                    );
-                    ("refusal", None, message.into())
-                }
-                ThreadError::DataRetentionConsentRequired => {
-                    let message = format!(
-                        "{} is not available with Zero Data Retention.",
-                        self.current_model_name(cx)
-                    );
-                    ("data_retention_consent_required", None, message.into())
-                }
-                ThreadError::AuthenticationRequired(message) => {
-                    ("authentication_required", None, message.clone())
-                }
-                ThreadError::RateLimitExceeded { provider } => (
-                    "rate_limit_exceeded",
-                    None,
-                    format!("{provider}'s rate limit was reached.").into(),
-                ),
-                ThreadError::ServerOverloaded { provider } => (
-                    "server_overloaded",
-                    None,
-                    format!("{provider}'s servers are temporarily unavailable.").into(),
-                ),
-                ThreadError::PromptTooLarge => (
-                    "prompt_too_large",
-                    None,
-                    "Context too large for the model's context window.".into(),
-                ),
-                ThreadError::NoCredentials { provider } => (
-                    "no_api_key",
-                    None,
-                    format!("No credentials configured for {provider}.").into(),
-                ),
-                ThreadError::StreamError { provider } => (
-                    "stream_error",
-                    None,
-                    format!("Connection to {provider}'s API was interrupted.").into(),
-                ),
-                ThreadError::AuthenticationFailed { provider } => (
-                    "invalid_api_key",
-                    None,
-                    format!("Authentication with {provider} failed.").into(),
-                ),
-                ThreadError::PermissionDenied { provider, message } => (
-                    "permission_denied",
-                    None,
-                    message.clone().unwrap_or_else(|| {
-                        format!(
-                            "{provider}'s API rejected the request due to insufficient permissions."
-                        )
-                        .into()
-                    }),
-                ),
-                ThreadError::RequestFailed => (
-                    "request_failed",
-                    None,
-                    "Request could not be completed after multiple attempts.".into(),
-                ),
-                ThreadError::MaxOutputTokens => (
-                    "max_output_tokens",
-                    None,
-                    "Model reached its maximum output length.".into(),
-                ),
-                ThreadError::NoModelSelected => {
-                    ("no_model_selected", None, "No model selected.".into())
-                }
-                ThreadError::ApiError { provider } => (
-                    "api_error",
-                    None,
-                    format!("{provider}'s API returned an unexpected error.").into(),
-                ),
-                ThreadError::Other {
-                    acp_error_code,
-                    message,
-                } => ("other", acp_error_code.clone(), message.clone()),
-            };
-
-        
-        let session_id = self.thread.read(cx).session_id().clone();
-        let parent_session_id = self
-            .thread
-            .read(cx)
-            .parent_session_id()
-            .map(|id| id.to_string());
-
-        telemetry::event!(
-            "Agent Panel Error Shown",
-            agent = 
-            session_id = session_id,
-            parent_session_id = parent_session_id,
-            kind = error_kind,
-            acp_error_code = acp_error_code,
-            message = message,
-        );
-    }
+    
 
     pub fn cancel_generation(&mut self, cx: &mut Context<Self>) {
         self.thread_retry_status.take();
@@ -6551,7 +6265,7 @@ impl ThreadView {
 
         let is_assistant = matches!(entry, AgentThreadEntry::AssistantMessage(_));
 
-        let comments_editor = self.thread_feedback.comments_editor.clone();
+        
 
         let primary = if entry_ix + 1 == total_entries {
             let last_assistant_index = thread
@@ -6572,9 +6286,6 @@ impl ThreadView {
                         None,
                         cx,
                     ))
-                })
-                .when_some(comments_editor, |this, editor| {
-                    this.child(Self::render_feedback_feedback_editor(editor, cx))
                 })
                 .into_any_element()
         } else {
@@ -6700,47 +6411,7 @@ impl ThreadView {
         )
     }
 
-    fn render_feedback_feedback_editor(editor: Entity<Editor>, cx: &Context<Self>) -> Div {
-        h_flex()
-            .key_context("AgentFeedbackMessageEditor")
-            .on_action(cx.listener(move |this, _: &menu::Cancel, _, cx| {
-                this.thread_feedback.dismiss_comments();
-                cx.notify();
-            }))
-            .on_action(cx.listener(move |this, _: &menu::Confirm, _window, cx| {
-                this.submit_feedback_message(cx);
-            }))
-            .p_2()
-            .mb_2()
-            .mx_5()
-            .gap_1()
-            .rounded_md()
-            .border_1()
-            .border_color(cx.theme().colors().border)
-            .bg(cx.theme().colors().editor_background)
-            .child(div().w_full().child(editor))
-            .child(
-                h_flex()
-                    .child(
-                        IconButton::new("dismiss-feedback-message", IconName::Close)
-                            .icon_color(Color::Error)
-                            .icon_size(IconSize::XSmall)
-                            .shape(ui::IconButtonShape::Square)
-                            .on_click(cx.listener(move |this, _, _window, cx| {
-                                this.thread_feedback.dismiss_comments();
-                                cx.notify();
-                            })),
-                    )
-                    .child(
-                        IconButton::new("submit-feedback-message", IconName::Return)
-                            .icon_size(IconSize::XSmall)
-                            .shape(ui::IconButtonShape::Square)
-                            .on_click(cx.listener(move |this, _, _window, cx| {
-                                this.submit_feedback_message(cx);
-                            })),
-                    ),
-            )
-    }
+    
 
     /// A turn ends when no further assistant output (message or tool call)
     /// follows before the next user message, and it's finalized once a user
@@ -6874,7 +6545,7 @@ impl ThreadView {
                                     ),
                                 })
                                 .on_click(cx.listener(move |this, _, window, cx| {
-                                    this.handle_feedback_click(ThreadFeedback::Positive, window, cx);
+                                    
                                 })),
                         )
                         .child(
@@ -6898,7 +6569,7 @@ impl ThreadView {
                                     ),
                                 })
                                 .on_click(cx.listener(move |this, _, window, cx| {
-                                    this.handle_feedback_click(ThreadFeedback::Negative, window, cx);
+                                    
                                 })),
                         )
                 })
@@ -7023,22 +6694,9 @@ impl ThreadView {
         cx.notify();
     }
 
-    fn handle_feedback_click(
-        &mut self,
-        feedback: ThreadFeedback,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) {
-        self.thread_feedback
-            .submit(self.thread.clone(), feedback, window, cx);
-        cx.notify();
-    }
+    
 
-    fn submit_feedback_message(&mut self, cx: &mut Context<Self>) {
-        let thread = self.thread.clone();
-        self.thread_feedback.submit_comments(thread, cx);
-        cx.notify();
-    }
+    
 
     pub(crate) fn scroll_to_top(&mut self, cx: &mut Context<Self>) {
         self.list_state.scroll_to(ListOffset::default());

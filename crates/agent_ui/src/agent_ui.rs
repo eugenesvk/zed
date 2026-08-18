@@ -582,7 +582,7 @@ pub fn init(
     fs: Arc<dyn Fs>,
     prompt_builder: Arc<PromptBuilder>,
     language_registry: Arc<LanguageRegistry>,
-    is_new_install: bool,
+    
     is_eval: bool,
     cx: &mut App,
 ) {
@@ -713,7 +713,7 @@ pub fn init(
         rules_to_skills_migration::migrate_rules_to_skills_if_needed(fs.clone(), cx);
     }
 
-    maybe_backfill_editor_layout(fs, is_new_install, cx);
+    maybe_backfill_editor_layout(fs,  cx);
 }
 
 fn rerun_rules_to_skills_migration(
@@ -765,7 +765,7 @@ fn show_rules_to_skills_migration_toast(
     }
 }
 
-fn maybe_backfill_editor_layout(fs: Arc<dyn Fs>, is_new_install: bool, cx: &mut App) {
+fn maybe_backfill_editor_layout(fs: Arc<dyn Fs>,  cx: &mut App) {
     let kvp = db::kvp::KeyValueStore::global(cx);
     let already_backfilled =
         util::ResultExt::log_err(kvp.read_kvp(PARALLEL_AGENT_LAYOUT_BACKFILL_KEY))
@@ -773,9 +773,7 @@ fn maybe_backfill_editor_layout(fs: Arc<dyn Fs>, is_new_install: bool, cx: &mut 
             .is_some();
 
     if !already_backfilled {
-        if !is_new_install {
-            AgentSettings::backfill_editor_layout(fs, cx);
-        }
+        
 
         db::write_and_log(cx, move || async move {
             kvp.write_kvp(
@@ -843,16 +841,12 @@ fn update_command_palette_filter(cx: &mut App) {
                     filter.hide_namespace("copilot");
                     filter.hide_action_types(&edit_prediction_actions);
                 }
-                EditPredictionProvider::Copilot => {
-                    filter.show_namespace("edit_prediction");
-                    filter.show_namespace("copilot");
-                    filter.show_action_types(edit_prediction_actions.iter());
-                }
+                
                 EditPredictionProvider::Zed
                 | EditPredictionProvider::Codestral
                 | EditPredictionProvider::Ollama
                 | EditPredictionProvider::OpenAiCompatibleApi
-                | EditPredictionProvider::Mercury => {
+                 => {
                     filter.show_namespace("edit_prediction");
                     filter.hide_namespace("copilot");
                     filter.show_action_types(edit_prediction_actions.iter());
@@ -1001,7 +995,7 @@ mod tests {
                 enabled: false,
                 threshold: agent_settings::AutoCompactThreshold::DEFAULT,
             },
-            enable_feedback: false,
+            
             expand_edit_card: true,
             expand_terminal_card: true,
             terminal_init_command: None,
