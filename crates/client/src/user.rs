@@ -123,8 +123,8 @@ pub struct UserStore {
     pending_contact_requests: HashMap<u64, usize>,
     client: Weak<Client>,
     _maintain_contacts: Task<()>,
-    _maintain_current_user: Task<Result<()>>,
-    _handle_sign_out: Task<()>,
+    
+    
     weak_self: WeakEntity<Self>,
 }
 
@@ -181,10 +181,7 @@ impl UserStore {
         ];
 
         client.sign_out_tx.lock().replace(sign_out_tx);
-        client.add_message_to_client_handler({
-            let this = cx.weak_entity();
-            move |message, cx| Self::handle_message_to_client(this.clone(), message, cx)
-        });
+        
 
         Self {
             users: Default::default(),
@@ -212,98 +209,8 @@ impl UserStore {
                     }
                 }
             }),
-            _maintain_current_user: cx.spawn(async move |this, cx| {
-                let mut status = client.status();
-                let weak = Arc::downgrade(&client);
-                drop(client);
-                while let Some(status) = status.next().await {
-                    // If the client is dropped, the app is shutting down.
-                    let Some(client) = weak.upgrade() else {
-                        return Ok(());
-                    };
-                    match status {
-                        Status::Authenticated
-                        | Status::Reauthenticated
-                        | Status::Connected { .. } => {
-                            if let Some(user_id) = client.user_id() {
-                                
-                                let response = client
-                                    .cloud_client()
-                                    .get_authenticated_user(system_id)
-                                    .await
-                                    .log_err();
-
-                                let current_user_and_response = if let Some(response) = response {
-                                    let user = Arc::new(User {
-                                        legacy_id: user_id,
-                                        username: response.user.username.clone().into(),
-                                        avatar_uri: response.user.avatar_url.clone().into(),
-                                        name: response.user.name.clone(),
-                                    });
-
-                                    Some((user, response))
-                                } else {
-                                    None
-                                };
-                                current_user_tx
-                                    .send(
-                                        current_user_and_response
-                                            .as_ref()
-                                            .map(|(user, _)| user.clone()),
-                                    )
-                                    .await
-                                    .ok();
-
-                                cx.update(|cx| {
-                                    if let Some((user, response)) = current_user_and_response {
-                                        this.update(cx, |this, cx| {
-                                            this.users.insert(user_id, user);
-                                            this.update_authenticated_user(response, cx)
-                                        })
-                                    } else {
-                                        anyhow::Ok(())
-                                    }
-                                })?;
-
-                                this.update(cx, |_, cx| cx.notify())?;
-                            }
-                        }
-                        Status::SignedOut => {
-                            current_user_tx.send(None).await.ok();
-                            this.update(cx, |this, cx| {
-                                this.clear_organizations();
-                                this.clear_plan_and_usage();
-                                cx.emit(Event::PrivateUserInfoUpdated);
-                                cx.notify();
-                                this.clear_contacts()
-                            })?
-                            .await;
-                        }
-                        Status::ConnectionLost => {
-                            this.update(cx, |this, cx| {
-                                cx.notify();
-                                this.clear_contacts()
-                            })?
-                            .await;
-                        }
-                        _ => {}
-                    }
-                }
-                Ok(())
-            }),
-            _handle_sign_out: cx.spawn(async move |this, cx| {
-                while let Some(()) = sign_out_rx.next().await {
-                    let Some(client) = this
-                        .read_with(cx, |this, _cx| this.client.upgrade())
-                        .ok()
-                        .flatten()
-                    else {
-                        break;
-                    };
-
-                    client.sign_out(cx).await;
-                }
-            }),
+            
+            
             pending_contact_requests: Default::default(),
             weak_self: cx.weak_entity(),
         }
@@ -690,46 +597,7 @@ impl UserStore {
         self.current_organization.clone()
     }
 
-    pub fn set_current_organization(
-        &mut self,
-        organization: Arc<Organization>,
-        cx: &mut Context<Self>,
-    ) -> Task<Result<()>> {
-        let is_same_organization = self
-            .current_organization
-            .as_ref()
-            .is_some_and(|current| current.id == organization.id);
-
-        if is_same_organization {
-            return Task::ready(Ok(()));
-        }
-
-        let organization_id = organization.id.clone();
-        self.current_organization.replace(organization);
-        cx.emit(Event::OrganizationChanged);
-        cx.notify();
-
-        let Some(client) = self.client.upgrade() else {
-            return Task::ready(Ok(()));
-        };
-        let Some(system_id) = client.telemetry().system_id().map(|id| id.to_string()) else {
-            // Without a system ID we have no addressable target row on the
-            // server, so the selection stays purely session-local.
-            return Task::ready(Ok(()));
-        };
-        let cloud_client = client.cloud_client();
-
-        cx.background_spawn(async move {
-            let body = UpdateSystemSettingsBody {
-                selected_organization_id: Some(organization_id),
-            };
-            cloud_client
-                .update_system_settings(system_id, body)
-                .await
-                .context("failed to persist selected organization")?;
-            Ok(())
-        })
-    }
+    
 
     pub fn organizations(&self) -> &Vec<Arc<Organization>> {
         &self.organizations
@@ -898,34 +766,7 @@ impl UserStore {
         cx.emit(Event::PrivateUserInfoUpdated);
     }
 
-    fn handle_message_to_client(this: WeakEntity<Self>, message: &MessageToClient, cx: &App) {
-        cx.spawn(async move |cx| {
-            match message {
-                MessageToClient::UserUpdated => {
-                    let (cloud_client, system_id) = cx
-                        .update(|cx| {
-                            this.read_with(cx, |this, _cx| {
-                                this.client.upgrade().map(|client| {
-                                    
-                                    (client.cloud_client(), system_id)
-                                })
-                            })
-                        })?
-                        .ok_or(anyhow::anyhow!("Failed to get Cloud client"))?;
-
-                    let response = cloud_client.get_authenticated_user(system_id).await?;
-                    cx.update(|cx| {
-                        this.update(cx, |this, cx| {
-                            this.update_authenticated_user(response, cx);
-                        })
-                    })?;
-                }
-            }
-
-            anyhow::Ok(())
-        })
-        .detach_and_log_err(cx);
-    }
+    
 
     pub fn watch_current_user(&self) -> watch::Receiver<Option<Arc<User>>> {
         self.current_user.clone()
