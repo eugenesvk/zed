@@ -218,11 +218,7 @@ impl ManageProfilesModal {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        telemetry::event!(
-            "Agent Profile Default Model Configured",
-            profile_id = profile_id.as_str(),
-            is_builtin = builtin_profiles::is_builtin(&profile_id)
-        );
+        
         let fs = self.fs.clone();
         let profile_id_for_closure = profile_id.clone();
 
@@ -319,11 +315,7 @@ impl ManageProfilesModal {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        telemetry::event!(
-            "Agent Profile MCPs Configured",
-            profile_id = profile_id.as_str(),
-            is_builtin = builtin_profiles::is_builtin(&profile_id)
-        );
+        
         let settings = AgentSettings::get_global(cx);
         let Some(profile) = settings.profiles.get(&profile_id).cloned() else {
             return;
@@ -360,11 +352,7 @@ impl ManageProfilesModal {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        telemetry::event!(
-            "Agent Profile Tools Configured",
-            profile_id = profile_id.as_str(),
-            is_builtin = builtin_profiles::is_builtin(&profile_id)
-        );
+        
         let settings = AgentSettings::get_global(cx);
         let Some(profile) = settings.profiles.get(&profile_id).cloned() else {
             return;
@@ -420,12 +408,7 @@ impl ManageProfilesModal {
 
                 let profile_id =
                     AgentProfile::create(name, base_profile_id.clone(), self.fs.clone(), cx);
-                telemetry::event!(
-                    "Agent Profile Created",
-                    profile_id = profile_id.as_str(),
-                    is_fork = base_profile_id.is_some(),
-                    base_profile_id = base_profile_id.as_ref().map(|id| id.as_str())
-                );
+                
                 self.view_profile(profile_id, window, cx);
             }
             Mode::ViewProfile(_) => {}
@@ -446,7 +429,7 @@ impl ManageProfilesModal {
             return;
         }
 
-        telemetry::event!("Agent Profile Deleted", profile_id = profile_id.as_str());
+        
 
         let fs = self.fs.clone();
 

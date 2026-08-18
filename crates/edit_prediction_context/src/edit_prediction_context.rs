@@ -388,15 +388,7 @@ impl RelatedExcerptStore {
             .iter()
             .map(|related_buffer| related_buffer.anchor_ranges.len())
             .sum::<usize>();
-        telemetry::event!(
-            "Edit Prediction LSP Context Retrieved",
-            lsp_names,
-            file_extension,
-            latency_ms,
-            lsp_fetch_latency_ms,
-            returned_excerpt_count,
-            is_via_ssh
-        );
+        
 
         if let Some(file) = &file {
             log::debug!(

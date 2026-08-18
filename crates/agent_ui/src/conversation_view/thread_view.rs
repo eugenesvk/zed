@@ -1565,15 +1565,7 @@ impl ThreadView {
                 });
                 drop(guard);
 
-                telemetry::event!(
-                    "Agent Message Sent",
-                    agent = 
-                    session = session_id,
-                    parent_session_id = parent_session_id.as_ref().map(|id| id.to_string()),
-                    model = model_id,
-                    mode = mode_id,
-                    side = side
-                );
+                
 
                 if is_native_command {
                     thread.send_command(contents, cx)
@@ -1596,17 +1588,7 @@ impl ThreadView {
             } else {
                 "failure"
             };
-            telemetry::event!(
-                "Agent Turn Completed",
-                agent = 
-                session = session_id,
-                parent_session_id = parent_session_id.as_ref().map(|id| id.to_string()),
-                model = model_id,
-                mode = mode_id,
-                status,
-                turn_time_ms,
-                side = side
-            );
+            
             res.map(|_| ())
         });
 
@@ -2721,7 +2703,7 @@ impl ThreadView {
                 .ok();
         }
 
-        telemetry::event!("Follow Agent Selected", following = !following);
+        
     }
 
     fn callout_border_position(&self) -> CalloutBorderPosition {
@@ -10427,7 +10409,7 @@ impl ThreadView {
                                                     state.is_tool_call_expanded(&tool_call_id)
                                                 });
                                             this.refresh_thread_search(window, cx);
-                                            telemetry::event!("Subagent Toggled", expanded);
+                                            
                                             cx.notify();
                                         }
                                     }))
@@ -10446,7 +10428,7 @@ impl ThreadView {
                                     |this, thread| {
                                         this.on_click(cx.listener(
                                             move |_this, _event, _window, cx| {
-                                                telemetry::event!("Subagent Stopped");
+                                                
                                                 thread.update(cx, |thread, cx| {
                                                     thread.cancel(cx).detach();
                                                 });
@@ -10484,7 +10466,7 @@ impl ThreadView {
                     )
                     .tooltip(Tooltip::text("Make Subagent Full Screen"))
                     .on_click(cx.listener(move |this, _event, window, cx| {
-                        telemetry::event!("Subagent Maximized");
+                        
                         this.server_view
                             .update(cx, |this, cx| {
                                 this.navigate_to_thread(nav_session_id.clone(), window, cx);

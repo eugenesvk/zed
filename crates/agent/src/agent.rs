@@ -3073,13 +3073,7 @@ impl NativeThreadEnvironment {
 
         let depth = current_depth + 1;
 
-        telemetry::event!(
-            "Subagent Started",
-            session = parent_thread_entity.read(cx).id().to_string(),
-            subagent_session = session_id.to_string(),
-            depth,
-            is_resumed = false,
-        );
+        
 
         self.prompt_subagent(session_id, subagent_thread, acp_thread)
     }
@@ -3100,13 +3094,7 @@ impl NativeThreadEnvironment {
         let depth = subagent_thread.read(cx).depth();
 
         if let Some(parent_thread_entity) = self.thread.upgrade() {
-            telemetry::event!(
-                "Subagent Started",
-                session = parent_thread_entity.read(cx).id().to_string(),
-                subagent_session = session_id.to_string(),
-                depth,
-                is_resumed = true,
-            );
+            
         }
 
         self.prompt_subagent(session_id, subagent_thread, acp_thread)

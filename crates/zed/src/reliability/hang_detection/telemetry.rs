@@ -246,7 +246,7 @@ impl Reporter {
             actions: self.actions.report_and_reset(),
         };
 
-        telemetry::event!("Hang Report", report);
+        
     }
 
     fn process_foreground(&mut self, task_stats: &[gpui::ThreadTaskStatistics]) {

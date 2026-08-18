@@ -7178,7 +7178,7 @@ impl Sidebar {
                 SidebarSide::Left => "left",
                 SidebarSide::Right => "right",
             };
-            telemetry::event!("Sidebar Add Project Clicked", side = side);
+            
             window.dispatch_action(
                 Open {
                     create_new_window: Some(false),
@@ -7381,14 +7381,7 @@ impl Sidebar {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        telemetry::event!(
-            "Agent Threads Import Clicked",
-            source = source,
-            side = match self.side(cx) {
-                SidebarSide::Left => "left",
-                SidebarSide::Right => "right",
-            }
-        );
+        
 
         let Some(active_workspace) = self.active_workspace(cx) else {
             return;
@@ -7484,14 +7477,7 @@ impl Sidebar {
         );
 
         let on_import = cx.listener(|this, _, _window, cx| {
-            telemetry::event!(
-                "Agent Threads Import Clicked",
-                source = "cross_channel_onboarding",
-                side = match this.side(cx) {
-                    SidebarSide::Left => "left",
-                    SidebarSide::Right => "right",
-                }
-            );
+            
             CrossChannelImportOnboarding::dismiss(cx);
             if let Some(workspace) = this.active_workspace(cx) {
                 workspace.update(cx, |workspace, cx| {
@@ -7533,7 +7519,7 @@ impl Sidebar {
             SidebarSide::Left => "left",
             SidebarSide::Right => "right",
         };
-        telemetry::event!("Thread History Viewed", side = side);
+        
 
         let Some(active_workspace) = self
             .multi_workspace

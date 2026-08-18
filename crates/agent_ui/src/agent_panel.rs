@@ -1086,15 +1086,7 @@ impl AgentTerminal {
         if let Some(program) =
             terminal_program_to_report(&mut self.last_observed_program, current_program)
         {
-            telemetry::event!(
-                "Agent Terminal Program Started",
-                agent = TERMINAL_AGENT_TELEMETRY_ID,
-                terminal_id = terminal_id.to_key_string(),
-                program = program,
-                source = source.as_str(),
-                side = crate::agent_sidebar_side(cx),
-                thread_location = "current_worktree",
-            );
+            
         }
     }
 }
@@ -2304,14 +2296,7 @@ impl AgentPanel {
         source: AgentThreadSource,
         cx: &App,
     ) {
-        telemetry::event!(
-            "Agent Thread Started",
-            agent = TERMINAL_AGENT_TELEMETRY_ID,
-            terminal_id = terminal_id.to_key_string(),
-            source = source.as_str(),
-            side = crate::agent_sidebar_side(cx),
-            thread_location = "current_worktree",
-        );
+        
     }
 
     fn refresh_terminal_metadata(&mut self, terminal_id: TerminalId, cx: &mut Context<Self>) {
@@ -4949,7 +4934,7 @@ impl Panel for AgentPanel {
             DockPosition::Left => "left",
             DockPosition::Right | DockPosition::Bottom => "right",
         };
-        telemetry::event!("Agent Panel Side Changed", side = side);
+        
         settings::update_settings_file(self.fs.clone(), cx, move |settings, _| {
             settings
                 .agent
@@ -5740,11 +5725,11 @@ impl AgentPanel {
             KeyBinding::for_action_in(&workspace::Open::default(), &focus_handle, cx),
         )
         .on_open_project(|_, window, cx| {
-            telemetry::event!("Agent Panel Add Project Clicked");
+            
             window.dispatch_action(workspace::Open::default().boxed_clone(), cx);
         })
         .on_clone_repo(|_, window, cx| {
-            telemetry::event!("Agent Panel Clone Repo Clicked");
+            
             window.dispatch_action(git::Clone.boxed_clone(), cx);
         })
     }

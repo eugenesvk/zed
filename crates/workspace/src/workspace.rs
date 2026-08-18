@@ -4172,11 +4172,7 @@ impl Workspace {
         let was_visible = self.is_dock_at_position_open(dock_side, cx) && !other_is_zoomed;
 
         if let Some(panel) = self.dock_at_position(dock_side).read(cx).active_panel() {
-            telemetry::event!(
-                "Panel Button Clicked",
-                name = panel.persistent_name(),
-                toggle_state = !was_visible
-            );
+            
         }
         if was_visible {
             self.save_open_dock_positions(cx);
@@ -4345,11 +4341,7 @@ impl Workspace {
             self.close_panel::<T>(window, cx);
         }
 
-        telemetry::event!(
-            "Panel Button Clicked",
-            name = T::persistent_name(),
-            toggle_state = did_focus_panel
-        );
+        
 
         did_focus_panel
     }

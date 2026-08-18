@@ -17772,12 +17772,7 @@ impl Editor {
                 }
 
                 let Some(project) = &self.project else { return };
-                let (telemetry, is_via_ssh) = {
-                    let project = project.read(cx);
-                    
-                    let is_via_ssh = project.is_via_ssh();
-                    (telemetry, is_via_ssh)
-                };
+                
                 refresh_linked_ranges(self, window, cx);
                 
             }

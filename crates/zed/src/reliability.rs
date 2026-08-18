@@ -486,17 +486,7 @@ async fn upload_build_timings(_client: Arc<Client>) -> Result<()> {
             }
         };
 
-        telemetry::event!(
-            "Build Timing: Cargo Build",
-            started_at = timing.started_at.to_rfc3339(),
-            duration_ms = timing.duration_ms,
-            first_crate = timing.first_crate,
-            target = timing.target,
-            blocked_ms = timing.blocked_ms,
-            command = timing.command,
-            cpu_count = cpu_count,
-            ram_size_gb = ram_size_gb
-        );
+        
 
         if let Err(err) = smol::fs::remove_file(&path).await {
             log::warn!("Failed to delete build timing file {:?}: {}", path, err);
