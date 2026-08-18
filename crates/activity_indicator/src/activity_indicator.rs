@@ -325,16 +325,7 @@ impl ActivityIndicator {
         });
     }
 
-    fn dismiss_message(&mut self, _: &DismissMessage, _: &mut Window, cx: &mut Context<Self>) {
-        self.project.update(cx, |project, cx| {
-            if project.last_formatting_failure(cx).is_some() {
-                project.reset_last_formatting_failure(cx);
-                true
-            } else {
-                false
-            }
-        });
-    }
+    
 
     fn pending_language_server_work<'a>(
         &self,
@@ -496,9 +487,9 @@ impl ActivityIndicator {
             }
         }
 
-        // Show any language server installation info.
-        let mut downloading = SmallVec::<[_; 3]>::new();
-        let mut checking_for_update = SmallVec::<[_; 3]>::new();
+        
+        
+        
         let mut failed = SmallVec::<[_; 3]>::new();
         let mut health_messages = SmallVec::<[_; 3]>::new();
         let mut servers_to_clear_statuses = HashSet::<LanguageServerName>::default();
@@ -511,10 +502,10 @@ impl ActivityIndicator {
                     servers_to_clear_statuses.insert(status.name.clone());
                 }
                 LanguageServerStatusUpdate::Binary(BinaryStatus::CheckingForUpdate) => {
-                    checking_for_update.push(status.name.clone());
+                    
                 }
                 LanguageServerStatusUpdate::Binary(BinaryStatus::Downloading) => {
-                    downloading.push(status.name.clone());
+                    
                 }
                 LanguageServerStatusUpdate::Binary(BinaryStatus::Failed { .. }) => {
                     failed.push(status.name.clone());
@@ -539,55 +530,9 @@ impl ActivityIndicator {
             ServerHealth::Ok => 0,
         });
 
-        if !downloading.is_empty() {
-            return Some(Content {
-                icon: ActivityIcon::Icon(IconName::Download),
-                message: format!(
-                    "Downloading {}...",
-                    downloading.iter().map(|name| name.as_ref()).fold(
-                        String::new(),
-                        |mut acc, s| {
-                            if !acc.is_empty() {
-                                acc.push_str(", ");
-                            }
-                            acc.push_str(s);
-                            acc
-                        }
-                    )
-                ),
-                on_click: Some(Arc::new(move |this, window, cx| {
-                    this.statuses
-                        .retain(|status| !downloading.contains(&status.name));
-                    this.dismiss_message(&DismissMessage, window, cx)
-                })),
-                tooltip_message: None,
-            });
-        }
+        
 
-        if !checking_for_update.is_empty() {
-            return Some(Content {
-                icon: ActivityIcon::Icon(IconName::Download),
-                message: format!(
-                    "Checking for updates to {}...",
-                    checking_for_update.iter().map(|name| name.as_ref()).fold(
-                        String::new(),
-                        |mut acc, s| {
-                            if !acc.is_empty() {
-                                acc.push_str(", ");
-                            }
-                            acc.push_str(s);
-                            acc
-                        }
-                    ),
-                ),
-                on_click: Some(Arc::new(move |this, window, cx| {
-                    this.statuses
-                        .retain(|status| !checking_for_update.contains(&status.name));
-                    this.dismiss_message(&DismissMessage, window, cx)
-                })),
-                tooltip_message: None,
-            });
-        }
+        
 
         if !failed.is_empty() {
             return Some(Content {
@@ -697,9 +642,7 @@ impl ActivityIndicator {
             return Some(Content {
                 icon,
                 message,
-                on_click: Some(Arc::new(|this, window, cx| {
-                    this.dismiss_message(&Default::default(), window, cx)
-                })),
+                on_click: None,
                 tooltip_message: None,
             });
         }
@@ -748,8 +691,7 @@ impl Render for ActivityIndicator {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let result = h_flex()
             .id("activity-indicator")
-            .on_action(cx.listener(Self::show_error_message))
-            .on_action(cx.listener(Self::dismiss_message));
+            .on_action(cx.listener(Self::show_error_message));
 
         let Some(content) = self.content_to_render(cx) else {
             return result;
