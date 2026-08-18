@@ -68,58 +68,11 @@ impl EditPredictionDelegate for ZedEditPredictionDelegate {
         self.store.read(cx).icons(cx)
     }
 
-    fn data_collection_state(&self, cx: &App) -> DataCollectionState {
-        if let Some(buffer) = &self.singleton_buffer
-            && let Some(file) = buffer.read(cx).file()
-        {
-            let is_project_open_source =
-                self.store
-                    .read(cx)
-                    .is_file_open_source(&self.project, file, cx);
+    
 
-            if self.store.read(cx).is_data_collection_enabled(cx) {
-                DataCollectionState::Enabled {
-                    is_project_open_source,
-                }
-            } else {
-                DataCollectionState::Disabled {
-                    is_project_open_source,
-                }
-            }
-        } else {
-            DataCollectionState::Disabled {
-                is_project_open_source: false,
-            }
-        }
-    }
+    
 
-    fn can_toggle_data_collection(&self, cx: &App) -> bool {
-        if cx.is_staff() {
-            return false;
-        }
-
-        self.store
-            .read(cx)
-            .is_data_collection_allowed_by_organization(cx)
-    }
-
-    fn toggle_data_collection(&mut self, cx: &mut App) {
-        let fs = <dyn Fs>::global(cx);
-        let is_currently_enabled = self.store.read(cx).is_data_collection_enabled(cx);
-        update_settings_file(fs, cx, move |settings, _| {
-            let edit_predictions = settings
-                .project
-                .all_languages
-                .edit_predictions
-                .get_or_insert_default();
-
-            edit_predictions.allow_data_collection = Some(if is_currently_enabled {
-                EditPredictionDataCollectionChoice::No
-            } else {
-                EditPredictionDataCollectionChoice::Yes
-            });
-        });
-    }
+    
 
     fn usage(&self, cx: &App) -> Option<client::EditPredictionUsage> {
         self.store.read(cx).usage(cx)
