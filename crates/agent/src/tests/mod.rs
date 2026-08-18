@@ -6,7 +6,7 @@ use acp_thread::{
 use agent_client_protocol::schema::v1 as acp;
 use agent_settings::AgentProfileId;
 use anyhow::Result;
-use client::{Client, RefreshLlmTokenListener, UserStore};
+use client::{Client,  UserStore};
 use collections::IndexMap;
 use context_server::{ContextServer, ContextServerCommand, ContextServerId};
 use feature_flags::FeatureFlagAppExt as _;

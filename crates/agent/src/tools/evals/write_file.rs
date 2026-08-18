@@ -4,7 +4,7 @@ use crate::{
 };
 use Role::*;
 use anyhow::{Context as _, Result};
-use client::{Client, RefreshLlmTokenListener, UserStore};
+use client::{Client,  UserStore};
 use fs::FakeFs;
 use futures::{FutureExt as _, StreamExt};
 use gpui::{AppContext as _, AsyncApp, Entity, TestAppContext, UpdateGlobal as _};

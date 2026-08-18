@@ -1,4 +1,4 @@
-use client::{RefreshLlmTokenListener, UserStore, test::FakeServer};
+use client::{ UserStore, test::FakeServer};
 use clock::FakeSystemClock;
 use clock::ReplicaId;
 use cloud_api_types::{
