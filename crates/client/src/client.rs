@@ -953,9 +953,7 @@ impl Client {
         }
 
         while let Some(message) = messages.next().await {
-            if let Some(message) = message.log_err() {
-                
-            }
+            
         }
 
         Ok(())

@@ -60,9 +60,7 @@ pub fn toggle_screen_sharing(
                     room.unshare_screen(clicked_on_currently_shared_screen || screen.is_none(), cx)
                 });
                 if let Some(screen) = screen {
-                    if !should_unshare_current_screen {
-                        
-                    }
+                    
                     cx.spawn(async move |room, cx| {
                         unshared_current_screen.transpose()?;
                         if !clicked_on_currently_shared_screen {

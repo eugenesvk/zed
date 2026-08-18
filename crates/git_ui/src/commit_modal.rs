@@ -517,11 +517,7 @@ impl CommitModal {
             git_panel.commit(&self.commit_editor.focus_handle(cx), window, cx)
         });
         if did_execute {
-            if is_amend {
-                
-            } else {
-                
-            }
+            
             cx.emit(DismissEvent);
         }
     }

@@ -3093,9 +3093,7 @@ impl NativeThreadEnvironment {
 
         let depth = subagent_thread.read(cx).depth();
 
-        if let Some(parent_thread_entity) = self.thread.upgrade() {
-            
-        }
+        
 
         self.prompt_subagent(session_id, subagent_thread, acp_thread)
     }

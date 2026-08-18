@@ -561,9 +561,7 @@ fn main() {
             
             move |_, evt: &client::user::Event, cx| match evt {
                 client::user::Event::PrivateUserInfoUpdated => {
-                    if let Some(crash_client) = cx.try_global::<CrashHandler>() {
-                        
-                    }
+                    
                 }
                 _ => {}
             }

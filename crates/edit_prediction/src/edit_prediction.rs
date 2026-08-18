@@ -979,14 +979,7 @@ impl EditPredictionStore {
         
 
         let (reject_tx, reject_rx) = mpsc::unbounded();
-        cx.background_spawn({
-            let client = client.clone();
-            
-            let app_version = AppVersion::global(cx);
-            let background_executor = cx.background_executor().clone();
-            
-        })
-        .detach();
+        
 
         let (settled_predictions_tx, settled_predictions_rx) = mpsc::unbounded();
         cx.spawn({

@@ -2708,9 +2708,7 @@ impl SettingsWindow {
         }
         self.current_file = self.files[ix].0.clone();
 
-        if let SettingsUiFile::Project((_, _)) = &self.current_file {
-            
-        }
+        
 
         self.build_ui(window, cx);
 
@@ -2739,9 +2737,7 @@ impl SettingsWindow {
         }
         self.current_file = self.files[ix].0.clone();
 
-        if let SettingsUiFile::Project((_, _)) = &self.current_file {
-            
-        }
+        
 
         self.last_copied_skill_directory_path = None;
 
@@ -3812,9 +3808,7 @@ impl SettingsWindow {
                 shown_errors: &mut HashSet<String>,
                 cx: &mut Context<SettingsWindow>,
             ) -> impl IntoElement {
-                if shown_errors.insert(error.clone()) {
-                    
-                }
+                
                 Banner::new()
                     .severity(Severity::Warning)
                     .child(

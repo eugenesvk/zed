@@ -202,9 +202,7 @@ impl ExtensionCard {
             button.on_click({
                 let extension_id = extension_id.clone();
                 move |_, _, cx| {
-                    if !is_dev {
-                        
-                    }
+                    
                     ExtensionStore::global(cx).update(cx, |store, cx| {
                         store
                             .uninstall_extension(extension_id.clone(), cx)

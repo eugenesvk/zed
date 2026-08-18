@@ -400,11 +400,7 @@ impl InlineAssistant {
 
             codegen_ranges.push(anchor_range);
 
-            if let Some(model) = LanguageModelRegistry::read_global(cx).inline_assistant_model() {
-                
-
-                
-            }
+            
         }
 
         Some((codegen_ranges, newest_selection))

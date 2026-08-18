@@ -1083,11 +1083,7 @@ impl AgentTerminal {
             .read(cx)
             .foreground_process_command_name();
 
-        if let Some(program) =
-            terminal_program_to_report(&mut self.last_observed_program, current_program)
-        {
-            
-        }
+        
     }
 }
 
