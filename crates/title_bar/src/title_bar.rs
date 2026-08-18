@@ -3,7 +3,7 @@ pub mod collab;
 
 
 mod title_bar_settings;
-mod update_version;
+
 
 use crate::application_menu::{ApplicationMenu, show_menus};
 
@@ -49,7 +49,7 @@ use ui::{
     Avatar, ButtonLike, ContextMenu, ContextMenuEntry, IconWithIndicator, Indicator, PopoverMenu,
     PopoverMenuHandle, TintColor, Tooltip, prelude::*, utils::platform_title_bar_height,
 };
-use update_version::UpdateVersion;
+
 use util::ResultExt;
 use workspace::{
     AccessibleMode, MultiWorkspace, ToggleWorktreeSecurity, Workspace,
