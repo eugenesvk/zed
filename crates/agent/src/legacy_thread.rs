@@ -1,4 +1,4 @@
-use crate::ProjectSnapshot;
+
 use agent_settings::AgentProfileId;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
@@ -26,8 +26,7 @@ pub struct SerializedThread {
     pub summary: SharedString,
     pub updated_at: DateTime<Utc>,
     pub messages: Vec<SerializedMessage>,
-    #[serde(default)]
-    pub initial_project_snapshot: Option<Arc<ProjectSnapshot>>,
+    
     #[serde(default)]
     pub cumulative_token_usage: TokenUsage,
     #[serde(default)]
@@ -168,8 +167,7 @@ struct LegacySerializedThread {
     pub summary: SharedString,
     pub updated_at: DateTime<Utc>,
     pub messages: Vec<LegacySerializedMessage>,
-    #[serde(default)]
-    pub initial_project_snapshot: Option<Arc<ProjectSnapshot>>,
+    
 }
 
 impl LegacySerializedThread {
@@ -179,7 +177,7 @@ impl LegacySerializedThread {
             summary: self.summary,
             updated_at: self.updated_at,
             messages: self.messages.into_iter().map(|msg| msg.upgrade()).collect(),
-            initial_project_snapshot: self.initial_project_snapshot,
+            
             cumulative_token_usage: TokenUsage::default(),
             request_token_usage: Vec::new(),
             detailed_summary_state: DetailedSummaryState::default(),
@@ -244,7 +242,7 @@ mod tests {
                 tool_uses: vec![],
                 tool_results: vec![],
             }],
-            initial_project_snapshot: None,
+            
         };
 
         let upgraded = legacy_thread.upgrade();
@@ -267,7 +265,7 @@ mod tests {
                     is_hidden: false
                 }],
                 version: SerializedThread::VERSION.to_string(),
-                initial_project_snapshot: None,
+                
                 cumulative_token_usage: TokenUsage::default(),
                 request_token_usage: vec![],
                 detailed_summary_state: DetailedSummaryState::default(),
@@ -332,7 +330,7 @@ mod tests {
                 },
             ],
             version: SerializedThreadV0_1_0::VERSION.to_string(),
-            initial_project_snapshot: None,
+            
             cumulative_token_usage: TokenUsage::default(),
             request_token_usage: vec![],
             detailed_summary_state: DetailedSummaryState::default(),
@@ -383,7 +381,7 @@ mod tests {
                     },
                 ],
                 version: SerializedThread::VERSION.to_string(),
-                initial_project_snapshot: None,
+                
                 cumulative_token_usage: TokenUsage::default(),
                 request_token_usage: vec![],
                 detailed_summary_state: DetailedSummaryState::default(),

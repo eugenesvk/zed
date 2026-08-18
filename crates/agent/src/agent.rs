@@ -70,11 +70,8 @@ use util::ResultExt;
 use util::path_list::PathList;
 use util::rel_path::RelPath;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ProjectSnapshot {
-    pub worktree_snapshots: Vec<project::telemetry_snapshot::TelemetryWorktreeSnapshot>,
-    pub timestamp: DateTime<Utc>,
-}
+
+
 
 pub struct RulesLoadingError {
     pub message: SharedString,

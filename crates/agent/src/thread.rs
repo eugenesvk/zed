@@ -2,7 +2,7 @@ use crate::{
     ApplyCodeActionTool, CodeActionStore, ContextServerRegistry, CopyPathTool, CreateDirectoryTool,
     CreateThreadTool, DbLanguageModel, DbThread, DeletePathTool, DiagnosticsTool, EditFileTool,
     FetchTool, FindPathTool, FindReferencesTool, GetCodeActionsTool, GoToDefinitionTool, GrepTool,
-    ListAgentsAndModelsTool, ListDirectoryTool, MovePathTool, ProjectSnapshot, ReadFileTool,
+    ListAgentsAndModelsTool, ListDirectoryTool, MovePathTool,  ReadFileTool,
     RenameTool, SandboxedTerminalTool, SpawnAgentTool, SystemPromptTemplate, Template, Templates,
     TerminalTool, ToolPermissionDecision, WebSearchTool, WriteFileTool,
     decide_permission_from_settings,
@@ -1254,8 +1254,7 @@ pub struct Thread {
     /// the start of each request.
     current_request_token_usage: TokenUsage,
     pending_compaction_telemetry: Option<CompactionTelemetry>,
-    #[allow(unused)]
-    initial_project_snapshot: Shared<Task<Option<Arc<ProjectSnapshot>>>>,
+    
     pub(crate) context_server_registry: Entity<ContextServerRegistry>,
     profile_id: AgentProfileId,
     /// Whether `profile_id` was downgraded to `minimal` at thread start because
@@ -1395,12 +1394,7 @@ impl Thread {
             cumulative_token_usage: TokenUsage::default(),
             current_request_token_usage: TokenUsage::default(),
             pending_compaction_telemetry: None,
-            initial_project_snapshot: {
-                let project_snapshot = Self::project_snapshot(project.clone(), cx);
-                cx.foreground_executor()
-                    .spawn(async move { Some(project_snapshot.await) })
-                    .shared()
-            },
+            
             context_server_registry,
             profile_id,
             profile_downgraded_for_restricted_workspace,
@@ -1778,7 +1772,7 @@ impl Thread {
             cumulative_token_usage: db_thread.cumulative_token_usage,
             current_request_token_usage: TokenUsage::default(),
             pending_compaction_telemetry: None,
-            initial_project_snapshot: Task::ready(db_thread.initial_project_snapshot).shared(),
+            
             context_server_registry,
             profile_id,
             profile_downgraded_for_restricted_workspace: false,
@@ -1879,13 +1873,13 @@ impl Thread {
     }
 
     pub fn to_db(&self, cx: &App) -> Task<DbThread> {
-        let initial_project_snapshot = self.initial_project_snapshot.clone();
+        
         let mut thread = DbThread {
             title: self.title().unwrap_or_default(),
             messages: self.messages.clone(),
             updated_at: self.updated_at,
             detailed_summary: self.summary.clone(),
-            initial_project_snapshot: None,
+            
             cumulative_token_usage: self.cumulative_token_usage,
             request_token_usage: self.request_token_usage.clone(),
             model: (&self.model).into(),
@@ -1906,27 +1900,13 @@ impl Thread {
         };
 
         cx.background_spawn(async move {
-            let initial_project_snapshot = initial_project_snapshot.await;
-            thread.initial_project_snapshot = initial_project_snapshot;
+            
+            
             thread
         })
     }
 
-    /// Create a snapshot of the current project state including git information and unsaved buffers.
-    fn project_snapshot(
-        project: Entity<Project>,
-        cx: &mut Context<Self>,
-    ) -> Task<Arc<ProjectSnapshot>> {
-        let task = project::telemetry_snapshot::TelemetrySnapshot::new(&project, cx);
-        cx.spawn(async move |_, _| {
-            let snapshot = task.await;
-
-            Arc::new(ProjectSnapshot {
-                worktree_snapshots: snapshot.worktree_snapshots,
-                timestamp: Utc::now(),
-            })
-        })
-    }
+        
 
     pub fn project_context(&self) -> &Entity<ProjectContext> {
         &self.project_context

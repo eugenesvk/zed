@@ -57,8 +57,7 @@ pub struct DbThread {
     pub updated_at: DateTime<Utc>,
     #[serde(default)]
     pub detailed_summary: Option<SharedString>,
-    #[serde(default)]
-    pub initial_project_snapshot: Option<Arc<crate::ProjectSnapshot>>,
+    
     #[serde(default)]
     pub cumulative_token_usage: language_model::TokenUsage,
     #[serde(default)]
@@ -156,7 +155,7 @@ impl SharedThread {
             messages: self.messages,
             updated_at: self.updated_at,
             detailed_summary: None,
-            initial_project_snapshot: None,
+            
             cumulative_token_usage: Default::default(),
             request_token_usage: Default::default(),
             model: self.model,
@@ -342,7 +341,7 @@ impl DbThread {
                 | crate::legacy_thread::DetailedSummaryState::Generating => None,
                 crate::legacy_thread::DetailedSummaryState::Generated { text, .. } => Some(text),
             },
-            initial_project_snapshot: thread.initial_project_snapshot,
+            
             cumulative_token_usage: thread.cumulative_token_usage,
             request_token_usage,
             model: thread.model,
@@ -793,7 +792,7 @@ mod tests {
             messages: Vec::new(),
             updated_at,
             detailed_summary: None,
-            initial_project_snapshot: None,
+            
             cumulative_token_usage: Default::default(),
             request_token_usage: HashMap::default(),
             model: None,
