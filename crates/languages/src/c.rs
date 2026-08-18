@@ -27,29 +27,7 @@ impl LspInstaller for CLspAdapter {
         pre_release: bool,
         _: &mut AsyncApp,
     ) -> Result<GitHubLspBinaryVersion> {
-        ensure_arch_compatibility()?;
-
-        let release =
-            latest_github_release("clangd/clangd", true, pre_release, delegate.http_client())
-                .await?;
-        let os_suffix = match consts::OS {
-            "macos" => "mac",
-            "linux" => "linux",
-            "windows" => "windows",
-            other => bail!("Running on unsupported os: {other}"),
-        };
-        let asset_name = format!("clangd-{}-{}.zip", os_suffix, release.tag_name);
-        let asset = release
-            .assets
-            .iter()
-            .find(|asset| asset.name == asset_name)
-            .with_context(|| format!("no asset found matching {asset_name:?}"))?;
-        let version = GitHubLspBinaryVersion {
-            name: release.tag_name,
-            url: asset.browser_download_url.clone(),
-            digest: asset.digest.clone(),
-        };
-        Ok(version)
+        Err(anyhow::anyhow!("zedless: function fetch_latest_server_version has been disabled"))
     }
 
     async fn check_if_user_installed(
@@ -72,91 +50,14 @@ impl LspInstaller for CLspAdapter {
         container_dir: PathBuf,
         delegate: &Arc<dyn LspAdapterDelegate>,
     ) -> impl Send + Future<Output = Result<LanguageServerBinary>> + use<> {
-        let delegate = delegate.clone();
-
-        async move {
-            ensure_arch_compatibility()?;
-
-            let GitHubLspBinaryVersion {
-                name,
-                url,
-                digest: expected_digest,
-            } = version;
-            let version_dir = container_dir.join(format!("clangd_{name}"));
-            let binary_path = version_dir
-                .join("bin")
-                .join(format!("clangd{}", consts::EXE_SUFFIX));
-
-            let binary = LanguageServerBinary {
-                path: binary_path.clone(),
-                env: None,
-                arguments: Default::default(),
-            };
-
-            let metadata_path = version_dir.join("metadata");
-            let metadata = GithubBinaryMetadata::read_from_file(&metadata_path)
-                .await
-                .ok();
-            if let Some(metadata) = metadata {
-                let validity_check = async || {
-                    delegate
-                        .try_exec(LanguageServerBinary {
-                            path: binary_path.clone(),
-                            arguments: vec!["--version".into()],
-                            env: None,
-                        })
-                        .await
-                        .inspect_err(|err| {
-                            log::warn!(
-                                "Unable to run {binary_path:?} asset, redownloading: {err:#}",
-                            )
-                        })
-                };
-                if let (Some(actual_digest), Some(expected_digest)) =
-                    (&metadata.digest, &expected_digest)
-                {
-                    if actual_digest == expected_digest {
-                        if validity_check().await.is_ok() {
-                            return Ok(binary);
-                        }
-                    } else {
-                        log::info!(
-                            "SHA-256 mismatch for {binary_path:?} asset, downloading new asset. Expected: {expected_digest}, Got: {actual_digest}"
-                        );
-                    }
-                } else if validity_check().await.is_ok() {
-                    return Ok(binary);
-                }
-            }
-            download_server_binary(
-                &*delegate.http_client(),
-                &url,
-                expected_digest.as_deref(),
-                &container_dir,
-                AssetKind::Zip,
-            )
-            .await?;
-            remove_matching(&container_dir, |entry| entry != version_dir).await;
-            GithubBinaryMetadata::write_to_file(
-                &GithubBinaryMetadata {
-                    metadata_version: 1,
-                    digest: expected_digest,
-                },
-                &metadata_path,
-            )
-            .await?;
-
-            Ok(binary)
-        }
+        async move { Err(anyhow::anyhow!("zedless: function fetch_server_binary has been disabled")) }
     }
 
     async fn cached_server_binary(
         &self,
         container_dir: PathBuf,
         _: &dyn LspAdapterDelegate,
-    ) -> Option<LanguageServerBinary> {
-        get_cached_server_binary(container_dir).await
-    }
+    ) -> Option<LanguageServerBinary> { None }
 }
 
 fn ensure_arch_compatibility() -> Result<()> {
@@ -385,33 +286,7 @@ impl super::LspAdapter for CLspAdapter {
     }
 }
 
-async fn get_cached_server_binary(container_dir: PathBuf) -> Option<LanguageServerBinary> {
-    maybe!(async {
-        let mut last_clangd_dir = None;
-        let mut entries = fs::read_dir(&container_dir).await?;
-        while let Some(entry) = entries.next().await {
-            let entry = entry?;
-            if entry.file_type().await?.is_dir() {
-                last_clangd_dir = Some(entry.path());
-            }
-        }
-        let clangd_dir = last_clangd_dir.context("no cached binary")?;
-        let clangd_bin = clangd_dir
-            .join("bin")
-            .join(format!("clangd{}", consts::EXE_SUFFIX));
-        anyhow::ensure!(
-            clangd_bin.exists(),
-            "missing clangd binary in directory {clangd_dir:?}"
-        );
-        Ok(LanguageServerBinary {
-            path: clangd_bin,
-            env: None,
-            arguments: Vec::new(),
-        })
-    })
-    .await
-    .log_err()
-}
+
 
 #[cfg(test)]
 mod tests {

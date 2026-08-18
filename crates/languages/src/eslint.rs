@@ -87,17 +87,7 @@ impl LspInstaller for EsLintLspAdapter {
         _: bool,
         _: &mut AsyncApp,
     ) -> Result<GitHubLspBinaryVersion> {
-        let url = build_asset_url(
-            "microsoft/vscode-eslint",
-            Self::CURRENT_VERSION_TAG_NAME,
-            Self::GITHUB_ASSET_KIND,
-        )?;
-
-        Ok(GitHubLspBinaryVersion {
-            name: Self::CURRENT_VERSION.into(),
-            digest: None,
-            url,
-        })
+        Err(anyhow::anyhow!("zedless: function fetch_latest_server_version has been disabled"))
     }
 
     fn fetch_server_binary(
@@ -106,73 +96,14 @@ impl LspInstaller for EsLintLspAdapter {
         container_dir: PathBuf,
         delegate: &Arc<dyn LspAdapterDelegate>,
     ) -> impl Send + Future<Output = Result<LanguageServerBinary>> + use<> {
-        let delegate = delegate.clone();
-        let node = self.node.clone();
-
-        async move {
-            let destination_path = Self::build_destination_path(&container_dir);
-            let server_path = destination_path.join(Self::SERVER_PATH);
-
-            if fs::metadata(&server_path).await.is_err() {
-                remove_matching(&container_dir, |_| true).await;
-
-                download_server_binary(
-                    &*delegate.http_client(),
-                    &version.url,
-                    None,
-                    &destination_path,
-                    Self::GITHUB_ASSET_KIND,
-                )
-                .await?;
-
-                let mut dir = fs::read_dir(&destination_path).await?;
-                let first = dir.next().await.context("missing first file")??;
-                let repo_root = destination_path.join("vscode-eslint");
-                fs::rename(first.path(), &repo_root).await?;
-
-                #[cfg(target_os = "windows")]
-                {
-                    handle_symlink(
-                        repo_root.join("$shared"),
-                        repo_root.join("client").join("src").join("shared"),
-                    )
-                    .await?;
-                    handle_symlink(
-                        repo_root.join("$shared"),
-                        repo_root.join("server").join("src").join("shared"),
-                    )
-                    .await?;
-                }
-
-                node.run_npm_subcommand(Some(&repo_root), "install", &[])
-                    .await?;
-
-                node.run_npm_subcommand(Some(&repo_root), "run-script", &["compile"])
-                    .await?;
-            }
-
-            Ok(LanguageServerBinary {
-                path: node.binary_path().await?,
-                env: None,
-                arguments: eslint_server_binary_arguments(&server_path),
-            })
-        }
+        async move { Err(anyhow::anyhow!("zedless: function fetch_server_binary has been disabled")) }
     }
 
     async fn cached_server_binary(
         &self,
         container_dir: PathBuf,
         _: &dyn LspAdapterDelegate,
-    ) -> Option<LanguageServerBinary> {
-        let server_path =
-            Self::build_destination_path(&container_dir).join(EsLintLspAdapter::SERVER_PATH);
-        fs::metadata(&server_path).await.ok()?;
-        Some(LanguageServerBinary {
-            path: self.node.binary_path().await.ok()?,
-            env: None,
-            arguments: eslint_server_binary_arguments(&server_path),
-        })
-    }
+    ) -> Option<LanguageServerBinary> { None }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

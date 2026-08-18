@@ -158,9 +158,7 @@ impl LspInstaller for JsonLspAdapter {
         _: bool,
         _: &mut AsyncApp,
     ) -> Result<Self::BinaryVersion> {
-        self.node
-            .npm_package_latest_version(Self::PACKAGE_NAME)
-            .await
+        Err(anyhow::anyhow!("zedless: function fetch_latest_server_version has been disabled"))
     }
 
     async fn check_if_user_installed(
@@ -221,29 +219,14 @@ impl LspInstaller for JsonLspAdapter {
         container_dir: PathBuf,
         _: &Arc<dyn LspAdapterDelegate>,
     ) -> impl Send + Future<Output = Result<LanguageServerBinary>> + use<> {
-        let node = self.node.clone();
-
-        async move {
-            let server_path = container_dir.join(SERVER_PATH);
-
-            node.npm_install_latest_packages(&container_dir, &[Self::PACKAGE_NAME])
-                .await?;
-
-            Ok(LanguageServerBinary {
-                path: node.binary_path().await?,
-                env: None,
-                arguments: server_binary_arguments(&server_path),
-            })
-        }
+        async move { Err(anyhow::anyhow!("zedless: function fetch_server_binary has been disabled")) }
     }
 
     async fn cached_server_binary(
         &self,
         container_dir: PathBuf,
         _: &dyn LspAdapterDelegate,
-    ) -> Option<LanguageServerBinary> {
-        get_cached_server_binary(container_dir, &self.node).await
-    }
+    ) -> Option<LanguageServerBinary> { None }
 }
 
 #[async_trait(?Send)]
@@ -382,25 +365,7 @@ fn json_schema_proxy_settings(proxy: Option<String>) -> Option<Value> {
     })
 }
 
-async fn get_cached_server_binary(
-    container_dir: PathBuf,
-    node: &NodeRuntime,
-) -> Option<LanguageServerBinary> {
-    maybe!(async {
-        let server_path = container_dir.join(SERVER_PATH);
-        anyhow::ensure!(
-            server_path.exists(),
-            "missing executable in directory {server_path:?}"
-        );
-        Ok(LanguageServerBinary {
-            path: node.binary_path().await?,
-            env: None,
-            arguments: server_binary_arguments(&server_path),
-        })
-    })
-    .await
-    .log_err()
-}
+
 
 #[cfg(test)]
 mod tests {
@@ -442,35 +407,7 @@ impl LspInstaller for NodeVersionAdapter {
         _: bool,
         _: &mut AsyncApp,
     ) -> Result<GitHubLspBinaryVersion> {
-        let release = latest_github_release(
-            "zed-industries/package-version-server",
-            true,
-            false,
-            delegate.http_client(),
-        )
-        .await?;
-        let os = match consts::OS {
-            "macos" => "apple-darwin",
-            "linux" => "unknown-linux-gnu",
-            "windows" => "pc-windows-msvc",
-            other => bail!("Running on unsupported os: {other}"),
-        };
-        let suffix = if consts::OS == "windows" {
-            ".zip"
-        } else {
-            ".tar.gz"
-        };
-        let asset_name = format!("{}-{}-{os}{suffix}", Self::SERVER_NAME, consts::ARCH);
-        let asset = release
-            .assets
-            .iter()
-            .find(|asset| asset.name == asset_name)
-            .with_context(|| format!("no asset found matching `{asset_name:?}`"))?;
-        Ok(GitHubLspBinaryVersion {
-            name: release.tag_name,
-            url: asset.browser_download_url.clone(),
-            digest: asset.digest.clone(),
-        })
+        Err(anyhow::anyhow!("zedless: function fetch_latest_server_version has been disabled"))
     }
 
     async fn check_if_user_installed(
@@ -493,58 +430,14 @@ impl LspInstaller for NodeVersionAdapter {
         container_dir: PathBuf,
         delegate: &Arc<dyn LspAdapterDelegate>,
     ) -> impl Send + Future<Output = Result<LanguageServerBinary>> + use<> {
-        let delegate = delegate.clone();
-
-        async move {
-            let version = &latest_version;
-            let destination_path = container_dir.join(format!(
-                "{}-{}{}",
-                Self::SERVER_NAME,
-                version.name,
-                std::env::consts::EXE_SUFFIX
-            ));
-            let destination_container_path =
-                container_dir.join(format!("{}-{}-tmp", Self::SERVER_NAME, version.name));
-            if fs::metadata(&destination_path).await.is_err() {
-                let mut response = delegate
-                    .http_client()
-                    .get(&version.url, Default::default(), true)
-                    .await
-                    .context("downloading release")?;
-                if version.url.ends_with(".zip") {
-                    extract_zip(&destination_container_path, response.body_mut()).await?;
-                } else if version.url.ends_with(".tar.gz") {
-                    let decompressed_bytes = GzipDecoder::new(BufReader::new(response.body_mut()));
-                    let archive = Archive::new(decompressed_bytes);
-                    archive.unpack(&destination_container_path).await?;
-                }
-
-                fs::copy(
-                    destination_container_path.join(format!(
-                        "{}{}",
-                        Self::SERVER_NAME,
-                        std::env::consts::EXE_SUFFIX
-                    )),
-                    &destination_path,
-                )
-                .await?;
-                remove_matching(&container_dir, |entry| entry != destination_path).await;
-            }
-            Ok(LanguageServerBinary {
-                path: destination_path,
-                env: None,
-                arguments: Default::default(),
-            })
-        }
+        async move { Err(anyhow::anyhow!("zedless: function fetch_server_binary has been disabled")) }
     }
 
     async fn cached_server_binary(
         &self,
         container_dir: PathBuf,
         _delegate: &dyn LspAdapterDelegate,
-    ) -> Option<LanguageServerBinary> {
-        get_cached_version_server_binary(container_dir).await
-    }
+    ) -> Option<LanguageServerBinary> { None }
 }
 
 #[async_trait(?Send)]
@@ -554,20 +447,4 @@ impl LspAdapter for NodeVersionAdapter {
     }
 }
 
-async fn get_cached_version_server_binary(container_dir: PathBuf) -> Option<LanguageServerBinary> {
-    maybe!(async {
-        let mut last = None;
-        let mut entries = fs::read_dir(&container_dir).await?;
-        while let Some(entry) = entries.next().await {
-            last = Some(entry?.path());
-        }
 
-        anyhow::Ok(LanguageServerBinary {
-            path: last.context("no cached binary")?,
-            env: None,
-            arguments: Default::default(),
-        })
-    })
-    .await
-    .log_err()
-}
