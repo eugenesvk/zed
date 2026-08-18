@@ -307,21 +307,9 @@ pub const LSP_REQUEST_DEBOUNCE_TIMEOUT: Duration = Duration::from_millis(50);
 pub(crate) const EDIT_PREDICTION_KEY_CONTEXT: &str = "edit_prediction";
 pub(crate) const MINIMAP_FONT_SIZE: AbsoluteLength = AbsoluteLength::Pixels(px(2.));
 
-enum ReportEditorEvent {
-    Saved { auto_saved: bool },
-    EditorOpened,
-    Closed,
-}
 
-impl ReportEditorEvent {
-    pub fn event_type(&self) -> &'static str {
-        match self {
-            Self::Saved { .. } => "Editor Saved",
-            Self::EditorOpened => "Editor Opened",
-            Self::Closed => "Editor Closed",
-        }
-    }
-}
+
+
 
 pub enum ActiveDebugLine {}
 pub enum DebugStackFrameLine {}
