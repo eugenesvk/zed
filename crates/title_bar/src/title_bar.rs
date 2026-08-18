@@ -1,6 +1,6 @@
 mod application_menu;
 pub mod collab;
-mod onboarding_banner;
+
 mod plan_chip;
 mod title_bar_settings;
 mod update_version;
@@ -32,7 +32,7 @@ use gpui::{
     StatefulInteractiveElement, Styled, Subscription, TaskExt, WeakEntity, Window, actions, div,
     pulsating_between,
 };
-use onboarding_banner::OnboardingBanner;
+
 use project::{
     Project, git_store::GitStoreEvent, project_settings::ProjectSettings,
     trusted_worktrees::TrustedWorktrees,
@@ -58,7 +58,7 @@ use workspace::{
 
 use zed_actions::OpenRemote;
 
-pub use onboarding_banner::restore_banner;
+
 
 const MAX_PROJECT_NAME_LENGTH: usize = 40;
 const MAX_BRANCH_NAME_LENGTH: usize = 40;
