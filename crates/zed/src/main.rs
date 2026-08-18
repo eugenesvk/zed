@@ -1,7 +1,7 @@
 // Disable command line from opening on release mode
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod reliability;
+
 mod zed;
 
 // Ensure the binary name stays in sync with APP_NAME so that the paths used
@@ -656,7 +656,7 @@ fn main() {
         
         dap_adapters::init(cx);
         
-        reliability::init(client.clone(), app_state.workspace_store.clone(), cx);
+        
         extension_host::init(
             extension_host_proxy.clone(),
             app_state.fs.clone(),
