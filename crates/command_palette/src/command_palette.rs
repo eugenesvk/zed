@@ -466,7 +466,7 @@ impl PickerDelegate for CommandPaletteDelegate {
         let (mut tx, mut rx) = postage::dispatch::channel(1);
 
         let query_str = query.as_str();
-        let is_zed_link = parse_zed_link(query_str, cx).is_some();
+        
 
         let task = cx.background_spawn({
             let mut commands = self.all_commands.clone();
@@ -499,19 +499,7 @@ impl PickerDelegate for CommandPaletteDelegate {
                 )
                 .await;
 
-                let intercept_result = if is_zed_link {
-                    CommandInterceptResult {
-                        results: vec![CommandInterceptItem {
-                            action: OpenZedUrl {
-                                url: query_for_link.clone().into(),
-                            }
-                            .boxed_clone(),
-                            string: query_for_link,
-                            positions: vec![],
-                        }],
-                        exclusive: false,
-                    }
-                } else if let Some(task) = intercept_task {
+                let intercept_result = if let Some(task) = intercept_task {
                     task.await
                 } else {
                     CommandInterceptResult::default()
