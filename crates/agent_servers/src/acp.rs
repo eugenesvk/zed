@@ -2378,9 +2378,7 @@ pub mod test_support {
             self.inner.set_title(session_id, cx)
         }
 
-        fn telemetry(&self) -> Option<Rc<dyn AgentTelemetry>> {
-            self.inner.telemetry()
-        }
+        
 
         fn session_modes(
             &self,

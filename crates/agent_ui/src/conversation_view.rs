@@ -6,7 +6,7 @@ use acp_thread::{
     ToolCallContent, ToolCallStatus,
 };
 use acp_thread::{AgentConnection, Plan};
-use action_log::{ActionLog, ActionLogTelemetry, DiffStats};
+use action_log::{ActionLog,  DiffStats};
 use agent::{NativeAgentServer, NoModelConfiguredError, ThreadStore};
 use agent_client_protocol::schema::v1 as acp;
 #[cfg(test)]
@@ -468,12 +468,12 @@ impl Conversation {
         let Some(thread) = self.threads.get(&session_id) else {
             return;
         };
-        let agent_telemetry_id = thread.read(cx).connection().telemetry_id();
+        
         let session_id = thread.read(cx).session_id().clone();
 
         telemetry::event!(
             "Agent Tool Call Authorized",
-            agent = agent_telemetry_id,
+            agent = 
             session = session_id,
             option = outcome.option_kind
         );
@@ -1914,7 +1914,7 @@ impl ConversationView {
             return;
         };
 
-        let agent_telemetry_id = connection.telemetry_id();
+        
 
         if let Some(login_task) = connection.terminal_auth_task(&method, cx) {
             pending_auth_method.replace(method.clone());
@@ -1944,12 +1944,12 @@ impl ConversationView {
                     match &result {
                         Ok(_) => telemetry::event!(
                             "Authenticate Agent Succeeded",
-                            agent = agent_telemetry_id
+                            agent = 
                         ),
                         Err(_) => {
                             telemetry::event!(
                                 "Authenticate Agent Failed",
-                                agent = agent_telemetry_id,
+                                agent = 
                             )
                         }
                     }
@@ -1997,10 +1997,10 @@ impl ConversationView {
                 match &result {
                     Ok(_) => telemetry::event!(
                         "Authenticate Agent Succeeded",
-                        agent = agent_telemetry_id
+                        agent = 
                     ),
                     Err(_) => {
-                        telemetry::event!("Authenticate Agent Failed", agent = agent_telemetry_id,)
+                        telemetry::event!("Authenticate Agent Failed", agent = )
                     }
                 }
 
@@ -2257,7 +2257,7 @@ impl ConversationView {
                     .rev()
                     .map(|(ix, method)| {
                         let (method_id, name) = (method.id().0.clone(), method.name().to_string());
-                        let agent_telemetry_id = connection.telemetry_id();
+                        
 
                         Button::new(method_id.clone(), name)
                             .label_size(LabelSize::Small)
@@ -2275,7 +2275,7 @@ impl ConversationView {
                                 cx.listener(move |this, _, window, cx| {
                                     telemetry::event!(
                                         "Authenticate Agent Started",
-                                        agent = agent_telemetry_id,
+                                        agent = 
                                         method = method_id
                                     );
 

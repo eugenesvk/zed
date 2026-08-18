@@ -51,14 +51,7 @@ impl AnthropicEventType {
     }
 }
 
-pub fn report_anthropic_event(
-    model: &Arc<dyn LanguageModel>,
-    event: AnthropicEventData,
-    cx: &gpui::App,
-) {
-    let reporter = AnthropicEventReporter::new(model, cx);
-    reporter.report(event);
-}
+
 
 #[derive(Clone)]
 pub struct AnthropicEventReporter {

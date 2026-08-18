@@ -226,8 +226,7 @@ impl UserStore {
                         | Status::Reauthenticated
                         | Status::Connected { .. } => {
                             if let Some(user_id) = client.user_id() {
-                                let system_id =
-                                    client.telemetry().system_id().map(|id| id.to_string());
+                                
                                 let response = client
                                     .cloud_client()
                                     .get_authenticated_user(system_id)
@@ -859,9 +858,7 @@ impl UserStore {
         let staff = response.user.is_staff && !*feature_flags::ZED_DISABLE_STAFF;
         cx.update_flags(staff, response.feature_flags);
         if let Some(client) = self.client.upgrade() {
-            client
-                .telemetry
-                .set_authenticated_user_info(Some(response.user.metrics_id.clone()), staff);
+            
         }
 
         self.organizations = response.organizations.into_iter().map(Arc::new).collect();
@@ -909,8 +906,7 @@ impl UserStore {
                         .update(|cx| {
                             this.read_with(cx, |this, _cx| {
                                 this.client.upgrade().map(|client| {
-                                    let system_id =
-                                        client.telemetry().system_id().map(|id| id.to_string());
+                                    
                                     (client.cloud_client(), system_id)
                                 })
                             })

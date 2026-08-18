@@ -14,7 +14,7 @@ use parking_lot::RwLock;
 use serde::de::DeserializeOwned;
 use thiserror::Error;
 
-pub use llm_token::LlmApiToken;
+
 
 struct Credentials {
     user_id: u32,
@@ -116,10 +116,7 @@ impl CloudApiClient {
                     .build_zed_cloud_url("/client/users/me")
                     .map_err(ClientApiError::RequestBuildFailed)?
                     .as_ref(),
-            )
-            .when_some(system_id, |builder, system_id| {
-                builder.header(ZED_SYSTEM_ID_HEADER_NAME, system_id)
-            });
+            );
 
         self.send_authenticated_json_request(request_builder, AsyncBody::default())
             .await
@@ -137,10 +134,7 @@ impl CloudApiClient {
                     .build_zed_cloud_url("/client/llm_tokens")
                     .map_err(ClientApiError::RequestBuildFailed)?
                     .as_ref(),
-            )
-            .when_some(system_id, |builder, system_id| {
-                builder.header(ZED_SYSTEM_ID_HEADER_NAME, system_id)
-            });
+            );
 
         self.send_authenticated_json_request(
             request_builder,

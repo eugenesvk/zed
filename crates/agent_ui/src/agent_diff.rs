@@ -1,6 +1,6 @@
 use crate::{Keep, KeepAll, OpenAgentDiff, Reject, RejectAll};
 use acp_thread::{AcpThread, AcpThreadEvent};
-use action_log::{ActionLogTelemetry, LastRejectUndo};
+use action_log::{ LastRejectUndo};
 use agent_settings::AgentSettings;
 use anyhow::Result;
 use buffer_diff::DiffHunkStatus;
@@ -302,10 +302,10 @@ impl AgentDiffPane {
     }
 
     fn keep_all(&mut self, _: &KeepAll, _window: &mut Window, cx: &mut Context<Self>) {
-        let telemetry = ActionLogTelemetry::from(self.thread.read(cx));
+        
         let action_log = self.thread.read(cx).action_log().clone();
         action_log.update(cx, |action_log, cx| {
-            action_log.keep_all_edits(Some(telemetry), cx)
+            action_log.keep_all_edits( cx)
         });
     }
 }
@@ -367,12 +367,12 @@ fn keep_edits_in_ranges(
         let buffer = multibuffer.read(cx).buffer(hunk.buffer_id);
         if let Some(buffer) = buffer {
             let action_log = thread.read(cx).action_log().clone();
-            let telemetry = ActionLogTelemetry::from(thread.read(cx));
+            
             action_log.update(cx, |action_log, cx| {
                 action_log.keep_edits_in_range(
                     buffer,
                     hunk.buffer_range.clone(),
-                    Some(telemetry),
+                    
                     cx,
                 )
             });
@@ -409,14 +409,14 @@ fn reject_edits_in_ranges(
     }
 
     let action_log = thread.read(cx).action_log().clone();
-    let telemetry = ActionLogTelemetry::from(thread.read(cx));
+    
     let mut undo_buffers = Vec::new();
 
     for (buffer, ranges) in ranges_by_buffer {
         action_log
             .update(cx, |action_log, cx| {
                 let (task, undo_info) =
-                    action_log.reject_edits_in_ranges(buffer, ranges, Some(telemetry.clone()), cx);
+                    action_log.reject_edits_in_ranges(buffer, ranges,  cx);
                 undo_buffers.extend(undo_info);
                 task
             })
@@ -557,9 +557,7 @@ impl Item for AgentDiffPane {
         }))))
     }
 
-    fn telemetry_event_text(&self) -> Option<&'static str> {
-        Some("Assistant Diff Opened")
-    }
+    
 
     fn as_searchable(&self, _: &Entity<Self>, _: &App) -> Option<Box<dyn SearchableItemHandle>> {
         Some(Box::new(self.editor.clone()))

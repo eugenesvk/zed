@@ -45,7 +45,7 @@ impl TerminalCodegen {
 
         let anthropic_reporter = AnthropicEventReporter::new(&model, cx);
         let session_id = self.session_id;
-        let model_telemetry_id = model.telemetry_id();
+        
         let model_provider_id = model.provider_id().to_string();
 
         self.status = CodegenStatus::Pending;
@@ -89,7 +89,7 @@ impl TerminalCodegen {
                             session_id = session_id.to_string(),
                             kind = "inline_terminal",
                             phase = "response",
-                            model = model_telemetry_id,
+                            model = 
                             model_provider = model_provider_id,
                             language_name = Option::<&str>::None,
                             message_id = message_id,

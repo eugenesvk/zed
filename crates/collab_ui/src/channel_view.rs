@@ -492,9 +492,7 @@ impl Item for ChannelView {
             .into_any_element()
     }
 
-    fn telemetry_event_text(&self) -> Option<&'static str> {
-        None
-    }
+    
 
     fn can_split(&self) -> bool {
         true

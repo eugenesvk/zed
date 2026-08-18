@@ -3657,7 +3657,7 @@ async fn save_keybinding_update(
         }
     };
 
-    let (new_keybinding, removed_keybinding, source) = operation.generate_telemetry();
+    
 
     let updated_keymap_contents = settings::KeymapFile::update_keybinding(
         operation,
@@ -3711,7 +3711,7 @@ async fn remove_keybinding(
         target_keybind_source: existing.keybind_source().unwrap_or(KeybindSource::User),
     };
 
-    let (new_keybinding, removed_keybinding, source) = operation.generate_telemetry();
+    
     let updated_keymap_contents = settings::KeymapFile::update_keybinding(
         operation,
         keymap_contents,

@@ -442,10 +442,7 @@ impl<T: 'static> PromptEditor<T> {
                     workspace.update(cx, |workspace, cx| {
                         let is_via_ssh = workspace.project().read(cx).is_via_remote_server();
 
-                        workspace
-                            .client()
-                            .telemetry()
-                            .log_edit_event("inline assist", is_via_ssh);
+                        
                     });
                 }
                 let prompt = snapshot.text();
@@ -568,7 +565,7 @@ impl<T: 'static> PromptEditor<T> {
             return;
         };
 
-        let model_telemetry_id = model.model.telemetry_id();
+        
         let model_provider_id = model.provider.id().to_string();
 
         let (kind, language_name) = match &self.mode {
@@ -587,7 +584,7 @@ impl<T: 'static> PromptEditor<T> {
             session_id = self.session_state.session_id.to_string(),
             kind = kind,
             phase = "started",
-            model = model_telemetry_id,
+            model = 
             model_provider = model_provider_id,
             language_name = language_name,
         );
@@ -705,7 +702,7 @@ impl<T: 'static> PromptEditor<T> {
                     rating = "negative",
                     session_id = self.session_state.session_id.to_string(),
                     kind = kind,
-                    model = model_telemetry_id,
+                    model = 
                     prompt = prompt,
                     completion = completion_text,
                     selected_text = selected_text,

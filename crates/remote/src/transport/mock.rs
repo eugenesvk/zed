@@ -329,15 +329,7 @@ impl RemoteClientDelegate for MockDelegate {
         unreachable!("MockDelegate::ask_password should not be called in tests")
     }
 
-    fn download_server_binary_locally(
-        &self,
-        _platform: crate::RemotePlatform,
-        _release_channel: release_channel::ReleaseChannel,
-        _version: Option<semver::Version>,
-        _cx: &mut AsyncApp,
-    ) -> Task<Result<PathBuf>> {
-        unreachable!("MockDelegate::download_server_binary_locally should not be called in tests")
-    }
+    
 
     fn get_download_url(
         &self,

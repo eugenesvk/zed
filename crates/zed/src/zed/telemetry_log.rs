@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use time::OffsetDateTime;
 
-use client::telemetry::Telemetry;
+
 use collections::{HashMap, HashSet};
 use fs::Fs;
 use futures::StreamExt;
@@ -91,13 +91,13 @@ impl TelemetryLogEntry {
 
 impl TelemetryLogView {
     pub fn new(project: Entity<Project>, _window: &mut Window, cx: &mut Context<Self>) -> Self {
-        let telemetry = client::Client::global(cx).telemetry().clone();
+        
         let fs = <dyn Fs>::global(cx);
 
         let list_state = ListState::new(0, ListAlignment::Bottom, px(2048.));
 
         let subscription = cx.spawn(async move |this, cx| {
-            let subscription = telemetry.subscribe_with_history(fs).await;
+            let subscription = .await;
 
             this.update(cx, |this, cx| {
                 let historical_events = match subscription.historical_events {

@@ -837,7 +837,7 @@ mod tests {
                 edit_history: String::new(),
                 expected_patches: Vec::new(),
                 rejected_patch: None,
-                telemetry: None,
+                
                 human_feedback: Vec::new(),
                 rating: None,
             },
@@ -1572,7 +1572,7 @@ mod tests {
                     edit_history: String::new(),
                     expected_patches: Vec::new(),
                     rejected_patch: None,
-                    telemetry: None,
+                    
                     human_feedback: Vec::new(),
                     rating: None,
                 },
@@ -1654,7 +1654,7 @@ mod tests {
                     edit_history: String::new(),
                     expected_patches: Vec::new(),
                     rejected_patch: None,
-                    telemetry: None,
+                    
                     human_feedback: Vec::new(),
                     rating: None,
                 },

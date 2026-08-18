@@ -492,9 +492,7 @@ impl Item for BranchDiff {
         }
     }
 
-    fn telemetry_event_text(&self) -> Option<&'static str> {
-        Some("Branch Diff Opened")
-    }
+    
 
     fn as_searchable(&self, _: &Entity<Self>, cx: &App) -> Option<Box<dyn SearchableItemHandle>> {
         Some(Box::new(self.diff.read(cx).editor().clone()))

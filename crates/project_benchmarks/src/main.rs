@@ -75,15 +75,7 @@ impl RemoteClientDelegate for BenchmarkRemoteClient {
         unimplemented!()
     }
 
-    fn download_server_binary_locally(
-        &self,
-        _platform: remote::RemotePlatform,
-        _release_channel: ReleaseChannel,
-        _version: Option<Version>,
-        _cx: &mut gpui::AsyncApp,
-    ) -> gpui::Task<gpui::Result<std::path::PathBuf>> {
-        unimplemented!()
-    }
+    
 
     fn set_status(&self, status: Option<&str>, _: &mut gpui::AsyncApp) {
         if let Some(status) = status {

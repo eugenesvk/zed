@@ -2714,9 +2714,7 @@ impl acp_thread::AgentConnection for NativeAgentConnection {
         Some(Rc::new(NativeAgentSessionList::new(thread_store, cx)) as _)
     }
 
-    fn telemetry(&self) -> Option<Rc<dyn acp_thread::AgentTelemetry>> {
-        Some(Rc::new(self.clone()) as Rc<dyn acp_thread::AgentTelemetry>)
-    }
+    
 
     fn into_any(self: Rc<Self>) -> Rc<dyn Any> {
         self

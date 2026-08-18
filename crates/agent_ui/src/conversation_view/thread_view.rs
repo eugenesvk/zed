@@ -93,8 +93,8 @@ impl ThreadFeedbackState {
         }
         let session_id = thread.read(cx).session_id().clone();
         let parent_session_id = thread.read(cx).parent_session_id().cloned();
-        let agent_telemetry_id = thread.read(cx).connection().telemetry_id();
-        let task = telemetry.thread_data(&session_id, cx);
+        
+        let task = ;
         let rating = match feedback {
             ThreadFeedback::Positive => "positive",
             ThreadFeedback::Negative => "negative",
@@ -141,8 +141,8 @@ impl ThreadFeedbackState {
         let organization = user_store.read(cx).current_organization();
 
         let session_id = thread.read(cx).session_id().clone();
-        let agent_telemetry_id = thread.read(cx).connection().telemetry_id();
-        let task = telemetry.thread_data(&session_id, cx);
+        
+        let task = ;
         cx.background_spawn(async move {
             let thread = task.await?;
 
@@ -1462,7 +1462,7 @@ impl ThreadView {
 
         telemetry::event!(
             "Agent Token Limit Warning",
-            agent = agent_telemetry_id,
+            agent = 
             session_id = session_id,
             kind = kind,
         );
@@ -1664,7 +1664,7 @@ impl ThreadView {
     ) {
         let session_id = self.thread.read(cx).session_id().clone();
         let parent_session_id = self.thread.read(cx).parent_session_id().cloned();
-        let agent_telemetry_id = self.thread.read(cx).connection().telemetry_id();
+        
         let is_first_message = self.thread.read(cx).entries().is_empty();
         let thread = self.thread.downgrade();
 
@@ -1745,7 +1745,7 @@ impl ThreadView {
 
                 telemetry::event!(
                     "Agent Message Sent",
-                    agent = agent_telemetry_id,
+                    agent = 
                     session = session_id,
                     parent_session_id = parent_session_id.as_ref().map(|id| id.to_string()),
                     model = model_id,
@@ -1776,7 +1776,7 @@ impl ThreadView {
             };
             telemetry::event!(
                 "Agent Turn Completed",
-                agent = agent_telemetry_id,
+                agent = 
                 session = session_id,
                 parent_session_id = parent_session_id.as_ref().map(|id| id.to_string()),
                 model = model_id,
@@ -1952,7 +1952,7 @@ impl ThreadView {
                 } => ("other", acp_error_code.clone(), message.clone()),
             };
 
-        let agent_telemetry_id = self.thread.read(cx).connection().telemetry_id();
+        
         let session_id = self.thread.read(cx).session_id().clone();
         let parent_session_id = self
             .thread
@@ -1962,7 +1962,7 @@ impl ThreadView {
 
         telemetry::event!(
             "Agent Panel Error Shown",
-            agent = agent_telemetry_id,
+            agent = 
             session_id = session_id,
             parent_session_id = parent_session_id,
             kind = error_kind,
@@ -2902,22 +2902,22 @@ impl ThreadView {
 
     pub fn keep_all(&mut self, _: &KeepAll, _window: &mut Window, cx: &mut Context<Self>) {
         let thread = &self.thread;
-        let telemetry = ActionLogTelemetry::from(thread.read(cx));
+        
         let action_log = thread.read(cx).action_log().clone();
         action_log.update(cx, |action_log, cx| {
-            action_log.keep_all_edits(Some(telemetry), cx)
+            action_log.keep_all_edits( cx)
         });
     }
 
     pub fn reject_all(&mut self, _: &RejectAll, _window: &mut Window, cx: &mut Context<Self>) {
         let thread = &self.thread;
-        let telemetry = ActionLogTelemetry::from(thread.read(cx));
+        
         let action_log = thread.read(cx).action_log().clone();
         let has_changes = action_log.read(cx).changed_buffers(cx).next().is_some();
 
         action_log
             .update(cx, |action_log, cx| {
-                action_log.reject_all_edits(Some(telemetry), cx)
+                action_log.reject_all_edits( cx)
             })
             .detach();
 
@@ -3090,7 +3090,7 @@ impl ThreadView {
     ) -> Option<AnyElement> {
         let thread = self.thread.read(cx);
         let action_log = thread.action_log();
-        let telemetry = ActionLogTelemetry::from(thread);
+        
         let changed_buffers = action_log.read(cx).changed_buffers(cx).collect::<Vec<_>>();
         let plan = thread.plan();
         let queue_is_empty = !self.has_queued_messages();
@@ -3174,7 +3174,6 @@ impl ThreadView {
                             .when(edits_expanded, |parent| {
                                 parent.child(self.render_edited_files(
                                     action_log,
-                                    telemetry.clone(),
                                     &changed_buffers,
                                     pending_edits,
                                     cx,
@@ -3199,7 +3198,7 @@ impl ThreadView {
     fn render_edited_files(
         &self,
         action_log: &Entity<ActionLog>,
-        telemetry: ActionLogTelemetry,
+        
         changed_buffers: &[(Entity<Buffer>, Entity<BufferDiff>)],
         pending_edits: bool,
         cx: &Context<Self>,
@@ -3280,7 +3279,7 @@ impl ThreadView {
                             index,
                             buffer,
                             action_log,
-                            &telemetry,
+                            
                             pending_edits,
                             editor_bg_color,
                             cx,
@@ -3348,7 +3347,7 @@ impl ThreadView {
         index: usize,
         buffer: &Entity<Buffer>,
         action_log: &Entity<ActionLog>,
-        telemetry: &ActionLogTelemetry,
+        
         pending_edits: bool,
         editor_bg_color: Hsla,
         cx: &Context<Self>,
@@ -3386,7 +3385,7 @@ impl ThreadView {
                     .on_click({
                         let buffer = buffer.clone();
                         let action_log = action_log.clone();
-                        let telemetry = telemetry.clone();
+                        
                         move |_, _, cx| {
                             action_log.update(cx, |action_log, cx| {
                                 action_log
@@ -3395,7 +3394,7 @@ impl ThreadView {
                                         vec![Anchor::min_max_range_for_buffer(
                                             buffer.read(cx).remote_id(),
                                         )],
-                                        Some(telemetry.clone()),
+                                        
                                         cx,
                                     )
                                     .0
@@ -3411,13 +3410,13 @@ impl ThreadView {
                     .on_click({
                         let buffer = buffer.clone();
                         let action_log = action_log.clone();
-                        let telemetry = telemetry.clone();
+                        
                         move |_, _, cx| {
                             action_log.update(cx, |action_log, cx| {
                                 action_log.keep_edits_in_range(
                                     buffer.clone(),
                                     Anchor::min_max_range_for_buffer(buffer.read(cx).remote_id()),
-                                    Some(telemetry.clone()),
+                                    
                                     cx,
                                 );
                             })
