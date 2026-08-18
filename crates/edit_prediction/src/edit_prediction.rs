@@ -21,7 +21,7 @@ use cloud_llm_client::{
     ZED_VERSION_HEADER_NAME,
 };
 use collections::{HashMap, HashSet};
-use copilot::{Copilot, Reinstall};
+
 use credentials_provider::CredentialsProvider;
 use db::kvp::{Dismissable, KeyValueStore};
 use edit_prediction_context::{RelatedExcerptStore, RelatedExcerptStoreEvent, RelatedFile};
@@ -104,7 +104,7 @@ use crate::onboarding_modal::ZedPredictModal;
 use crate::prediction::EditPredictionResult;
 pub use crate::prediction::{EditPrediction, EditPredictionId, EditPredictionInputs};
 pub use language_model::ApiKeyState;
-pub use telemetry_events::EditPredictionRating;
+
 pub use zed_edit_prediction_delegate::ZedEditPredictionDelegate;
 
 actions!(

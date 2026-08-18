@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{EditPredictionStore, ZedPredictUpsell};
-use ai_onboarding::EditPredictionOnboarding;
+
 use client::{Client, UserStore};
 use db::kvp::Dismissable;
 use fs::Fs;

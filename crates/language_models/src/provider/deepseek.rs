@@ -1,7 +1,7 @@
 use anyhow::{Result, anyhow};
 use collections::{HashMap, IndexMap};
 use credentials_provider::CredentialsProvider;
-use deepseek::DEEPSEEK_API_URL;
+
 
 use futures::Stream;
 use futures::{FutureExt, StreamExt, future::BoxFuture, stream::BoxStream};

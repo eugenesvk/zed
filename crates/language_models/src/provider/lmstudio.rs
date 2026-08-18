@@ -15,7 +15,7 @@ use language_model::{
     LanguageModelProviderId, LanguageModelProviderName, LanguageModelProviderState,
     LanguageModelRequest, ProviderSettingsView, RateLimiter, Role, SubPageProviderSettings,
 };
-use lmstudio::{LMSTUDIO_API_URL, ModelType, get_models};
+
 
 pub use settings::LmStudioAvailableModel as AvailableModel;
 use settings::{Settings, SettingsStore, update_settings_file};
@@ -698,7 +698,7 @@ struct RawToolCall {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use lmstudio::{ChoiceDelta, ResponseMessageDelta, ResponseStreamEvent, Usage};
+    
 
     fn make_event(choices: Vec<ChoiceDelta>, usage: Option<Usage>) -> ResponseStreamEvent {
         ResponseStreamEvent {

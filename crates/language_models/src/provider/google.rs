@@ -2,7 +2,7 @@ use anyhow::{Context as _, Result};
 use collections::BTreeMap;
 use credentials_provider::CredentialsProvider;
 use futures::{FutureExt, StreamExt, future::BoxFuture};
-use google_ai::GenerateContentResponse;
+
 pub use google_ai::completion::{GoogleEventMapper, into_google};
 use gpui::{App, AppContext, AsyncApp, Context, Entity, SharedString, Task};
 use http_client::{CustomHeaders, HttpClient};

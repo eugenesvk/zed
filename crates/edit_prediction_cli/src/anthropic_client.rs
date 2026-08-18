@@ -1,8 +1,4 @@
-use anthropic::{
-    ANTHROPIC_API_URL, Event, Message, Request as AnthropicRequest, RequestContent,
-    Response as AnthropicResponse, ResponseContent, Role, non_streaming_completion,
-    stream_completion,
-};
+
 use anyhow::Result;
 use futures::StreamExt as _;
 use http_client::HttpClient;

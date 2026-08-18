@@ -13,9 +13,7 @@ use language_model::{
     MessageContent, ProviderSettingsView, RateLimiter, Role, StopReason, TokenUsage, env_var,
 };
 use open_ai::completion::ReasoningDetailsAccumulator;
-use open_router::{
-    Model, ModelMode as OpenRouterModelMode, OPEN_ROUTER_API_URL, ResponseStreamEvent, list_models,
-};
+
 use settings::{OpenRouterAvailableModel as AvailableModel, Settings, SettingsStore};
 use sha2::{Digest as _, Sha256};
 use std::pin::Pin;
@@ -890,7 +888,7 @@ struct RawToolCall {
 mod tests {
     use super::*;
 
-    use open_router::{ChoiceDelta, FunctionChunk, ResponseMessageDelta, ToolCallChunk};
+    
 
     #[gpui::test]
     async fn test_reasoning_details_preservation_with_tool_calls() {

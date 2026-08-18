@@ -58,7 +58,7 @@ use crate::{
     ui::{AgentNotification, AgentNotificationEvent, EndTrialUpsell},
 };
 use agent_settings::AgentSettings;
-use ai_onboarding::AgentPanelOnboarding;
+
 use anyhow::{Context as _, Result, anyhow};
 #[cfg(feature = "audio")]
 use audio::{Audio, Sound};
