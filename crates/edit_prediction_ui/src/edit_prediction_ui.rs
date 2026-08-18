@@ -37,14 +37,10 @@ actions!(
 );
 
 pub fn init(cx: &mut App) {
-    feature_gate_predict_edits_actions(cx);
+    
 
     cx.observe_new(move |workspace: &mut Workspace, _, _cx| {
-        workspace.register_action(|workspace, _: &RatePredictions, window, cx| {
-            if cx.has_flag::<PredictEditsRatePredictionsFeatureFlag>() {
-                RatePredictionsModal::toggle(workspace, window, cx);
-            }
-        });
+        
 
         workspace.register_action_renderer(|div, _, _, cx| {
             div.on_action(cx.listener(
@@ -71,54 +67,4 @@ pub fn init(cx: &mut App) {
     .detach();
 }
 
-fn feature_gate_predict_edits_actions(cx: &mut App) {
-    let rate_completion_action_types = [TypeId::of::<RatePredictions>()];
-    let reset_onboarding_action_types = [TypeId::of::<ResetOnboarding>()];
-    let all_action_types = [
-        TypeId::of::<RatePredictions>(),
-        TypeId::of::<edit_prediction::ResetOnboarding>(),
-        zed_actions::OpenZedPredictOnboarding.type_id(),
-        TypeId::of::<edit_prediction::ClearHistory>(),
-        TypeId::of::<rate_prediction_modal::ThumbsUpActivePrediction>(),
-        TypeId::of::<rate_prediction_modal::ThumbsDownActivePrediction>(),
-        TypeId::of::<rate_prediction_modal::NextEdit>(),
-        TypeId::of::<rate_prediction_modal::PreviousEdit>(),
-    ];
 
-    CommandPaletteFilter::update_global(cx, |filter, _cx| {
-        filter.hide_action_types(&rate_completion_action_types);
-        filter.hide_action_types(&reset_onboarding_action_types);
-        filter.hide_action_types(&[zed_actions::OpenZedPredictOnboarding.type_id()]);
-    });
-
-    cx.observe_global::<SettingsStore>(move |cx| {
-        let is_ai_disabled = DisableAiSettings::get_global(cx).disable_ai;
-        let has_feature_flag = cx.has_flag::<PredictEditsRatePredictionsFeatureFlag>();
-
-        CommandPaletteFilter::update_global(cx, |filter, _cx| {
-            if is_ai_disabled {
-                filter.hide_action_types(&all_action_types);
-            } else if has_feature_flag {
-                filter.show_action_types(&rate_completion_action_types);
-            } else {
-                filter.hide_action_types(&rate_completion_action_types);
-            }
-        });
-    })
-    .detach();
-
-    cx.observe_flag::<PredictEditsRatePredictionsFeatureFlag, _>(move |value, cx| {
-        if !DisableAiSettings::get_global(cx).disable_ai {
-            if *value {
-                CommandPaletteFilter::update_global(cx, |filter, _cx| {
-                    filter.show_action_types(&rate_completion_action_types);
-                });
-            } else {
-                CommandPaletteFilter::update_global(cx, |filter, _cx| {
-                    filter.hide_action_types(&rate_completion_action_types);
-                });
-            }
-        }
-    })
-    .detach();
-}
