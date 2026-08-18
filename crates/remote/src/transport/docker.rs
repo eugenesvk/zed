@@ -349,85 +349,9 @@ impl DockerExecConnection {
         self.run_docker_exec_delimited("echo $HOME").await
     }
 
-    async fn extract_server_binary(
-        &self,
-        dst_path: &RelPath,
-        tmp_path: &RelPath,
-        remote_dir_for_server: &str,
-        delegate: &Arc<dyn RemoteClientDelegate>,
-        cx: &mut AsyncApp,
-    ) -> Result<()> {
-        delegate.set_status(Some("Extracting remote development server"), cx);
-        let server_mode = 0o755;
+    
 
-        let shell_kind = ShellKind::Posix;
-        let orig_tmp_path = tmp_path.display(self.path_style());
-        let server_mode = format!("{:o}", server_mode);
-        let server_mode = shell_kind
-            .try_quote(&server_mode)
-            .context("shell quoting")?;
-        let dst_path = dst_path.display(self.path_style());
-        let dst_path = shell_kind.try_quote(&dst_path).context("shell quoting")?;
-        let script = if let Some(tmp_path) = orig_tmp_path.strip_suffix(".gz") {
-            let orig_tmp_path = shell_kind
-                .try_quote(&orig_tmp_path)
-                .context("shell quoting")?;
-            let tmp_path = shell_kind.try_quote(&tmp_path).context("shell quoting")?;
-            format!(
-                "gunzip -f {orig_tmp_path} && chmod {server_mode} {tmp_path} && mv {tmp_path} {dst_path}",
-            )
-        } else {
-            let orig_tmp_path = shell_kind
-                .try_quote(&orig_tmp_path)
-                .context("shell quoting")?;
-            format!("chmod {server_mode} {orig_tmp_path} && mv {orig_tmp_path} {dst_path}",)
-        };
-        let args = shell_kind.args_for_shell(false, script.to_string());
-        self.run_docker_exec(
-            "sh",
-            Some(&remote_dir_for_server),
-            &Default::default(),
-            &args,
-        )
-        .await
-        .log_err();
-        Ok(())
-    }
-
-    async fn upload_local_server_binary(
-        &self,
-        src_path: &Path,
-        tmp_path_gz: &RelPath,
-        remote_dir_for_server: &str,
-        delegate: &Arc<dyn RemoteClientDelegate>,
-        cx: &mut AsyncApp,
-    ) -> Result<()> {
-        if let Some(parent) = tmp_path_gz.parent() {
-            self.run_docker_exec(
-                "mkdir",
-                Some(remote_dir_for_server),
-                &Default::default(),
-                &["-p", parent.display(self.path_style()).as_ref()],
-            )
-            .await?;
-        }
-
-        let src_stat = smol::fs::metadata(&src_path).await?;
-        let size = src_stat.len();
-
-        let t0 = Instant::now();
-        delegate.set_status(Some("Uploading remote development server"), cx);
-        log::info!(
-            "uploading remote development server to {:?} ({}kb)",
-            tmp_path_gz,
-            size / 1024
-        );
-        self.upload_file(src_path, tmp_path_gz, remote_dir_for_server)
-            .await
-            .context("failed to upload server binary")?;
-        log::info!("uploaded remote development server in {:?}", t0.elapsed());
-        Ok(())
-    }
+    
 
     async fn upload_and_chown(
         docker_cli: String,
@@ -553,78 +477,7 @@ impl DockerExecConnection {
         self.run_docker_command("exec", args.as_ref()).await
     }
 
-    async fn download_binary_on_server(
-        &self,
-        url: &str,
-        tmp_path_gz: &RelPath,
-        remote_dir_for_server: &str,
-        delegate: &Arc<dyn RemoteClientDelegate>,
-        cx: &mut AsyncApp,
-    ) -> Result<()> {
-        if let Some(parent) = tmp_path_gz.parent() {
-            self.run_docker_exec(
-                "mkdir",
-                Some(remote_dir_for_server),
-                &Default::default(),
-                &["-p", parent.display(self.path_style()).as_ref()],
-            )
-            .await?;
-        }
-
-        delegate.set_status(Some("Downloading remote development server on host"), cx);
-
-        match self
-            .run_docker_exec(
-                "curl",
-                Some(remote_dir_for_server),
-                &Default::default(),
-                &[
-                    "-f",
-                    "-L",
-                    url,
-                    "-o",
-                    &tmp_path_gz.display(self.path_style()),
-                ],
-            )
-            .await
-        {
-            Ok(_) => {}
-            Err(e) => {
-                if self
-                    .run_docker_exec("which", None, &Default::default(), &["curl"])
-                    .await
-                    .is_ok()
-                {
-                    return Err(e);
-                }
-
-                log::info!("curl is not available, trying wget");
-                match self
-                    .run_docker_exec(
-                        "wget",
-                        Some(remote_dir_for_server),
-                        &Default::default(),
-                        &[url, "-O", &tmp_path_gz.display(self.path_style())],
-                    )
-                    .await
-                {
-                    Ok(_) => {}
-                    Err(e) => {
-                        if self
-                            .run_docker_exec("which", None, &Default::default(), &["wget"])
-                            .await
-                            .is_ok()
-                        {
-                            return Err(e);
-                        } else {
-                            anyhow::bail!("Neither curl nor wget is available");
-                        }
-                    }
-                }
-            }
-        }
-        Ok(())
-    }
+    
 
     fn kill_inner(&self) -> Result<()> {
         if let Some(pid) = self.proxy_process.lock().take() {
