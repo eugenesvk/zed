@@ -308,7 +308,7 @@ async fn test_zeta_request_sends_settled_body_when_data_collection_is_disabled(
     });
 
     let (request, respond_tx) = requests.predict.next().await.unwrap();
-    assert!(!request.input.can_collect_data);
+    assert!(!request.input.);
     respond_tx
         .send(model_response(&request, SIMPLE_DIFF))
         .unwrap();
@@ -325,7 +325,7 @@ async fn test_zeta_request_sends_settled_body_when_data_collection_is_disabled(
         .now_or_never()
         .flatten()
         .expect("settled request should be sent");
-    assert!(!settled_request.can_collect_data);
+    assert!(!settled_request.);
     assert_eq!(settled_request.settled_editable_region, None);
     assert_eq!(settled_request.sample_data, None);
 }
@@ -2814,7 +2814,7 @@ async fn test_edit_prediction_basic_interpolation(cx: &mut TestAppContext) {
             excerpt_ranges: Default::default(),
             syntax_ranges: None,
             in_open_source_repo: false,
-            can_collect_data: false,
+            
             repo_url: None,
         }),
         model_version: None,
@@ -4115,7 +4115,7 @@ async fn test_edit_prediction_settled_sends_sample_data_after_quiescence(cx: &mu
     }
 
     let redacted_request = settled_by_id.remove("prediction-redacted").unwrap();
-    assert!(!redacted_request.can_collect_data);
+    assert!(!redacted_request.);
     assert_eq!(redacted_request.settled_editable_region, None);
     assert_eq!(redacted_request.sample_data, None);
 

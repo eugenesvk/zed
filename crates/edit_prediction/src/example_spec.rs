@@ -48,8 +48,7 @@ pub struct ExampleSpec {
     
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub human_feedback: Vec<HumanFeedback>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub rating: Option<EditPredictionRating>,
+    
 }
 
 #[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
@@ -267,7 +266,7 @@ impl ExampleSpec {
             rejected_patch: None,
             
             human_feedback: Vec::new(),
-            rating: None,
+            
         };
 
         if let Some(rest) = input.strip_prefix("+++\n")
@@ -528,7 +527,7 @@ mod tests {
             rejected_patch: None,
             
             human_feedback: Vec::new(),
-            rating: None,
+            
         };
 
         // Cursor before `42`
@@ -667,7 +666,7 @@ mod tests {
             rejected_patch: None,
             
             human_feedback: Vec::new(),
-            rating: None,
+            
         };
 
         // Cursor before `42` using inline marker
@@ -742,7 +741,7 @@ mod tests {
             rejected_patch: None,
             
             human_feedback: Vec::new(),
-            rating: None,
+            
         };
 
         let new_content = indoc! {r#"

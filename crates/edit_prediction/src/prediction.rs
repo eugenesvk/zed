@@ -211,7 +211,7 @@ mod tests {
                 excerpt_ranges: Default::default(),
                 syntax_ranges: None,
                 in_open_source_repo: false,
-                can_collect_data: false,
+                
                 repo_url: None,
             }),
         };

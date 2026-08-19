@@ -1,7 +1,7 @@
 use buffer_diff::BufferDiff;
 use cloud_llm_client::PredictEditsRequestTrigger;
 use edit_prediction::{
-    EditPrediction, EditPredictionInputs, EditPredictionRating, EditPredictionStore,
+    EditPrediction, EditPredictionInputs,  EditPredictionStore,
 };
 use editor::{Editor, Inlay, MultiBuffer};
 use feature_flags::{FeatureFlag, PresenceFlag, register_feature_flag};

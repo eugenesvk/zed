@@ -117,7 +117,7 @@ impl Mercury {
                 syntax_ranges: Some(syntax_ranges),
                 active_buffer_diagnostics: vec![],
                 in_open_source_repo: false,
-                can_collect_data: false,
+                
                 repo_url: None,
             };
 
@@ -421,13 +421,7 @@ struct FeedbackRequest {
     provider_version: String,
 }
 
-pub(crate) fn edit_prediction_accepted(
-    prediction_id: EditPredictionId,
-    http_client: Arc<dyn HttpClient>,
-    cx: &App,
-) {
-    send_feedback(prediction_id, MercuryUserAction::Accept, http_client, cx);
-}
+
 
 pub(crate) fn edit_prediction_rejected(
     prediction_id: EditPredictionId,
