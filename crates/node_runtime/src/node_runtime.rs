@@ -212,7 +212,7 @@ impl NodeRuntime {
     }
 
     pub async fn binary_path(&self) -> Result<PathBuf> {
-        self.instance().await.binary_path()
+        Err(anyhow::anyhow!("zedless: function binary_path has been disabled"))
     }
 
     pub async fn run_npm_subcommand(
@@ -221,11 +221,7 @@ impl NodeRuntime {
         subcommand: &str,
         args: &[&str],
     ) -> Result<Output> {
-        let http = self.0.lock().await.http.clone();
-        self.instance()
-            .await
-            .run_npm_subcommand(directory, http.proxy(), subcommand, args)
-            .await
+        Err(anyhow::anyhow!("zedless: function run_npm_subcommand has been disabled"))
     }
 
     pub async fn npm_package_installed_version(
@@ -233,10 +229,7 @@ impl NodeRuntime {
         local_package_directory: &Path,
         name: &str,
     ) -> Result<Option<Version>> {
-        self.instance()
-            .await
-            .npm_package_installed_version(local_package_directory, name)
-            .await
+        Err(anyhow::anyhow!("zedless: function npm_package_installed_version has been disabled"))
     }
 
     pub async fn npm_command(
@@ -245,16 +238,11 @@ impl NodeRuntime {
         subcommand: &str,
         args: &[&str],
     ) -> Result<NpmCommand> {
-        let http = self.0.lock().await.http.clone();
-        self.instance()
-            .await
-            .npm_command(prefix_dir, http.proxy(), subcommand, args)
-            .await
+        Err(anyhow::anyhow!("zedless: function npm_command has been disabled"))
     }
 
     pub async fn npm_package_latest_version(&self, name: &str) -> Result<Version> {
-        self.npm_package_latest_version_with_requirement(name, None)
-            .await
+        Err(anyhow::anyhow!("zedless: function npm_package_latest_version has been disabled"))
     }
 
     pub async fn npm_package_latest_version_with_requirement(
@@ -307,38 +295,7 @@ impl NodeRuntime {
         directory: &Path,
         packages: &[(&str, &str)],
     ) -> Result<()> {
-        if packages.is_empty() {
-            return Ok(());
-        }
-
-        log::debug!(
-            "installing npm packages directory={} packages={packages:?}",
-            directory.display()
-        );
-
-        let packages: Vec<_> = packages
-            .iter()
-            .map(|(name, version)| format!("{name}@{version}"))
-            .collect();
-
-        let arguments: Vec<_> = packages
-            .iter()
-            .map(|p| p.as_str())
-            .chain([
-                "--save-exact",
-                "--fetch-retry-mintimeout",
-                "2000",
-                "--fetch-retry-maxtimeout",
-                "5000",
-                "--fetch-timeout",
-                "5000",
-            ])
-            .collect();
-
-        // This is also wrong because the directory is wrong.
-        self.run_npm_subcommand(Some(directory), "install", &arguments)
-            .await?;
-        Ok(())
+        Err(anyhow::anyhow!("zedless: function npm_install_packages has been disabled"))
     }
 
     pub async fn npm_install_latest_packages(
@@ -730,26 +687,7 @@ impl ManagedNodeRuntime {
     }
 }
 
-fn path_with_node_binary_prepended(node_binary: &Path) -> Option<OsString> {
-    let existing_path = env::var_os("PATH");
-    let node_bin_dir = node_binary.parent().map(|dir| dir.as_os_str());
-    match (existing_path, node_bin_dir) {
-        (Some(existing_path), Some(node_bin_dir)) => {
-            if let Ok(joined) = env::join_paths(
-                [PathBuf::from(node_bin_dir)]
-                    .into_iter()
-                    .chain(env::split_paths(&existing_path)),
-            ) {
-                Some(joined)
-            } else {
-                Some(existing_path)
-            }
-        }
-        (Some(existing_path), None) => Some(existing_path),
-        (None, Some(node_bin_dir)) => Some(node_bin_dir.to_owned()),
-        _ => None,
-    }
-}
+
 
 #[async_trait::async_trait]
 impl NodeRuntimeTrait for ManagedNodeRuntime {
@@ -758,7 +696,7 @@ impl NodeRuntimeTrait for ManagedNodeRuntime {
     }
 
     fn binary_path(&self) -> Result<PathBuf> {
-        Ok(self.installation_path.join(Self::NODE_PATH))
+        Err(anyhow::anyhow!("zedless: function binary_path has been disabled"))
     }
 
     async fn run_npm_subcommand(
@@ -768,37 +706,7 @@ impl NodeRuntimeTrait for ManagedNodeRuntime {
         subcommand: &str,
         args: &[&str],
     ) -> Result<Output> {
-        let attempt = || async {
-            let npm_command = self.npm_command(directory, proxy, subcommand, args).await?;
-            let mut command = util::command::new_command(npm_command.path);
-            command.args(npm_command.args);
-            command.envs(npm_command.env);
-            if let Some(directory) = directory {
-                command.current_dir(directory);
-            }
-            command.output().await.map_err(|e| anyhow!("{e}"))
-        };
-
-        let mut output = attempt().await;
-        if output.is_err() {
-            output = attempt().await;
-            anyhow::ensure!(
-                output.is_ok(),
-                "failed to launch npm subcommand {subcommand} subcommand\nerr: {:?}",
-                output.err()
-            );
-        }
-
-        if let Ok(output) = &output {
-            anyhow::ensure!(
-                output.status.success(),
-                "failed to execute npm {subcommand} subcommand:\nstdout: {:?}\nstderr: {:?}",
-                String::from_utf8_lossy(&output.stdout),
-                String::from_utf8_lossy(&output.stderr)
-            );
-        }
-
-        output.map_err(|e| anyhow!("{e}"))
+        Err(anyhow::anyhow!("zedless: function run_npm_subcommand has been disabled"))
     }
 
     async fn npm_command(
@@ -808,35 +716,7 @@ impl NodeRuntimeTrait for ManagedNodeRuntime {
         subcommand: &str,
         args: &[&str],
     ) -> Result<NpmCommand> {
-        let node_binary = self.installation_path.join(Self::NODE_PATH);
-        let npm_file = self.installation_path.join(Self::NPM_PATH);
-
-        anyhow::ensure!(
-            smol::fs::metadata(&node_binary).await.is_ok(),
-            "missing node binary file"
-        );
-        anyhow::ensure!(
-            smol::fs::metadata(&npm_file).await.is_ok(),
-            "missing npm file"
-        );
-
-        let command_args = build_npm_command_args(
-            Some(&npm_file),
-            prefix_dir,
-            &self.installation_path.join("cache"),
-            Some(&self.installation_path.join("blank_user_npmrc")),
-            Some(&self.installation_path.join("blank_global_npmrc")),
-            proxy,
-            subcommand,
-            args,
-        );
-        let command_env = npm_command_env(&node_binary);
-
-        Ok(NpmCommand {
-            path: node_binary,
-            args: command_args,
-            env: command_env,
-        })
+        Err(anyhow::anyhow!("zedless: function npm_command has been disabled"))
     }
 
     async fn npm_package_installed_version(
@@ -844,7 +724,7 @@ impl NodeRuntimeTrait for ManagedNodeRuntime {
         local_package_directory: &Path,
         name: &str,
     ) -> Result<Option<Version>> {
-        read_package_installed_version(local_package_directory.join("node_modules"), name).await
+        Err(anyhow::anyhow!("zedless: function npm_package_installed_version has been disabled"))
     }
 }
 
@@ -925,7 +805,7 @@ impl NodeRuntimeTrait for SystemNodeRuntime {
     }
 
     fn binary_path(&self) -> Result<PathBuf> {
-        Ok(self.node.clone())
+        Err(anyhow::anyhow!("zedless: function binary_path has been disabled"))
     }
 
     async fn run_npm_subcommand(
@@ -959,23 +839,7 @@ impl NodeRuntimeTrait for SystemNodeRuntime {
         subcommand: &str,
         args: &[&str],
     ) -> Result<NpmCommand> {
-        let command_args = build_npm_command_args(
-            None,
-            prefix_dir,
-            &self.scratch_dir.join("cache"),
-            None,
-            None,
-            proxy,
-            subcommand,
-            args,
-        );
-        let command_env = npm_command_env(&self.node);
-
-        Ok(NpmCommand {
-            path: self.npm.clone(),
-            args: command_args,
-            env: command_env,
-        })
+        Err(anyhow::anyhow!("zedless: function npm_command has been disabled"))
     }
 
     async fn npm_package_installed_version(
@@ -983,8 +847,7 @@ impl NodeRuntimeTrait for SystemNodeRuntime {
         local_package_directory: &Path,
         name: &str,
     ) -> Result<Option<Version>> {
-        read_package_installed_version(local_package_directory.join("node_modules"), name).await
-        // todo: allow returning a globally installed version (requires callers not to hard-code the path)
+        Err(anyhow::anyhow!("zedless: function npm_package_installed_version has been disabled"))
     }
 }
 
@@ -1074,7 +937,7 @@ impl NodeRuntimeTrait for UnavailableNodeRuntime {
         Box::new(self.clone())
     }
     fn binary_path(&self) -> Result<PathBuf> {
-        bail!("{}", self.error_message)
+        Err(anyhow::anyhow!("zedless: function binary_path has been disabled"))
     }
 
     async fn run_npm_subcommand(
@@ -1094,7 +957,7 @@ impl NodeRuntimeTrait for UnavailableNodeRuntime {
         _subcommand: &str,
         _args: &[&str],
     ) -> Result<NpmCommand> {
-        bail!("{}", self.error_message)
+        Err(anyhow::anyhow!("zedless: function npm_command has been disabled"))
     }
 
     async fn npm_package_installed_version(
@@ -1102,90 +965,15 @@ impl NodeRuntimeTrait for UnavailableNodeRuntime {
         _local_package_directory: &Path,
         _: &str,
     ) -> Result<Option<Version>> {
-        bail!("{}", self.error_message)
+        Err(anyhow::anyhow!("zedless: function npm_package_installed_version has been disabled"))
     }
 }
 
-fn proxy_argument(proxy: Option<&Url>) -> Option<String> {
-    let mut proxy = proxy.cloned()?;
-    // Map proxy settings from `http://localhost:10809` to `http://127.0.0.1:10809`
-    // NodeRuntime without environment information can not parse `localhost`
-    // correctly.
-    // TODO: map to `[::1]` if we are using ipv6
-    if matches!(proxy.host(), Some(Host::Domain(domain)) if domain.eq_ignore_ascii_case("localhost"))
-    {
-        // When localhost is a valid Host, so is `127.0.0.1`
-        let _ = proxy.set_ip_host(IpAddr::V4(Ipv4Addr::LOCALHOST));
-    }
 
-    Some(proxy.as_str().to_string())
-}
 
-fn build_npm_command_args(
-    entrypoint: Option<&Path>,
-    prefix_dir: Option<&Path>,
-    cache_dir: &Path,
-    user_config: Option<&Path>,
-    global_config: Option<&Path>,
-    proxy: Option<&Url>,
-    subcommand: &str,
-    args: &[&str],
-) -> Vec<String> {
-    let mut command_args = Vec::new();
-    if let Some(entrypoint) = entrypoint {
-        command_args.push(entrypoint.to_string_lossy().into_owned());
-    }
-    if let Some(prefix_dir) = prefix_dir {
-        command_args.push("--prefix".into());
-        command_args.push(prefix_dir.to_string_lossy().into_owned());
-    }
-    command_args.push(subcommand.to_string());
-    command_args.push(format!("--cache={}", cache_dir.display()));
-    if let Some(user_config) = user_config {
-        command_args.push("--userconfig".into());
-        command_args.push(user_config.to_string_lossy().into_owned());
-    }
-    if let Some(global_config) = global_config {
-        command_args.push("--globalconfig".into());
-        command_args.push(global_config.to_string_lossy().into_owned());
-    }
-    if let Some(proxy_arg) = proxy_argument(proxy) {
-        command_args.push("--proxy".into());
-        command_args.push(proxy_arg);
-    }
-    command_args.extend(args.into_iter().map(|a| a.to_string()));
-    command_args
-}
 
-pub fn npm_command_env(node_binary: &Path) -> HashMap<String, String> {
-    let mut command_env = HashMap::new();
-    let env_path = path_with_node_binary_prepended(node_binary).unwrap_or_default();
-    command_env.insert("PATH".into(), env_path.to_string_lossy().into_owned());
 
-    if let Ok(node_ca_certs) = env::var(NODE_CA_CERTS_ENV_VAR) {
-        if !node_ca_certs.is_empty() {
-            command_env.insert(NODE_CA_CERTS_ENV_VAR.to_string(), node_ca_certs);
-        }
-    }
 
-    #[cfg(windows)]
-    {
-        if let Some(val) = env::var("SYSTEMROOT")
-            .context("Missing environment variable: SYSTEMROOT!")
-            .log_err()
-        {
-            command_env.insert("SYSTEMROOT".into(), val);
-        }
-        if let Some(val) = env::var("ComSpec")
-            .context("Missing environment variable: ComSpec!")
-            .log_err()
-        {
-            command_env.insert("ComSpec".into(), val);
-        }
-    }
-
-    command_env
-}
 
 #[cfg(test)]
 mod tests {
@@ -1196,91 +984,20 @@ mod tests {
     use semver::{Version, VersionReq};
 
     use super::{
-        NpmInfo, VersionStrategy, build_npm_command_args, deserialize_npm_info_from_response,
-        proxy_argument, select_npm_package_version, should_install_npm_package_version,
+        NpmInfo, VersionStrategy,  deserialize_npm_info_from_response,
+         select_npm_package_version, should_install_npm_package_version,
     };
 
-    // Map localhost to 127.0.0.1
-    // NodeRuntime without environment information can not parse `localhost` correctly.
-    #[test]
-    fn test_proxy_argument_map_localhost_proxy() {
-        const CASES: [(&str, &str); 4] = [
-            // Map localhost to 127.0.0.1
-            ("http://localhost:9090/", "http://127.0.0.1:9090/"),
-            ("https://google.com/", "https://google.com/"),
-            (
-                "http://username:password@proxy.thing.com:8080/",
-                "http://username:password@proxy.thing.com:8080/",
-            ),
-            // Test when localhost is contained within a different part of the URL
-            (
-                "http://username:localhost@localhost:8080/",
-                "http://username:localhost@127.0.0.1:8080/",
-            ),
-        ];
+    
+    
+    
+    
 
-        for (proxy, mapped_proxy) in CASES {
-            let proxy = Url::parse(proxy).unwrap();
-            let proxy = proxy_argument(Some(&proxy)).expect("Proxy was not passed correctly");
-            assert_eq!(
-                proxy, mapped_proxy,
-                "Incorrectly mapped localhost to 127.0.0.1"
-            );
-        }
-    }
+    
+    
 
-    #[test]
-    fn test_build_npm_command_args_inserts_prefix_before_subcommand() {
-        let args = build_npm_command_args(
-            None,
-            Some(Path::new("/tmp/zed-prefix")),
-            Path::new("/tmp/cache"),
-            None,
-            None,
-            None,
-            "exec",
-            &["--yes", "--", "agent-package"],
-        );
-
-        assert_eq!(
-            args,
-            vec![
-                "--prefix".to_string(),
-                "/tmp/zed-prefix".to_string(),
-                "exec".to_string(),
-                "--cache=/tmp/cache".to_string(),
-                "--yes".to_string(),
-                "--".to_string(),
-                "agent-package".to_string(),
-            ]
-        );
-    }
-
-    #[test]
-    fn test_build_npm_command_args_keeps_entrypoint_before_prefix() {
-        let args = build_npm_command_args(
-            Some(Path::new("/tmp/npm-cli.js")),
-            Some(Path::new("/tmp/zed-prefix")),
-            Path::new("/tmp/cache"),
-            None,
-            None,
-            None,
-            "exec",
-            &["--yes"],
-        );
-
-        assert_eq!(
-            args,
-            vec![
-                "/tmp/npm-cli.js".to_string(),
-                "--prefix".to_string(),
-                "/tmp/zed-prefix".to_string(),
-                "exec".to_string(),
-                "--cache=/tmp/cache".to_string(),
-                "--yes".to_string(),
-            ]
-        );
-    }
+    
+    
 
     #[test]
     fn test_latest_version_strategy_accepts_newer_installed_versions() -> Result<()> {
