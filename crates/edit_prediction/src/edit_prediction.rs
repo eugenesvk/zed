@@ -1,7 +1,7 @@
 use anyhow::{Context as _, Result, anyhow};
 use buffer_diff::BufferDiff;
-use client::{Client, EditPredictionUsage, UserStore, global_llm_token};
-use cloud_api_client::LlmApiToken;
+use client::{Client, EditPredictionUsage, UserStore, };
+
 use cloud_api_types::{
     EditPredictionRecentFile, EditPredictionSettledKeptChars,
     MAX_EDIT_PREDICTION_SETTLED_PER_REQUEST, OrganizationId, SettledEditPrediction,
@@ -975,7 +975,7 @@ impl EditPredictionStore {
     }
 
     pub fn new(client: Arc<Client>, user_store: Entity<UserStore>, cx: &mut Context<Self>) -> Self {
-        let llm_token = global_llm_token(cx);
+        let llm_token = ;
         let legacy_data_collection_enabled = Self::load_legacy_data_collection_enabled(cx);
 
         let (reject_tx, reject_rx) = mpsc::unbounded();

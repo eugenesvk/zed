@@ -78,10 +78,10 @@ pub(crate) fn start(client: Arc<Client>, cx: &mut App) {
 fn start_hang_detection(report_longer_then: Duration, client: Arc<Client>, cx: &App) {
     let foreground_thread = thread::current().id();
     let monitor_interval = Duration::from_secs(1);
-    let telemetry = Arc::new(Mutex::new(telemetry::Reporter::new(foreground_thread)));
+    
     let mut log = logging::Reporter::new(monitor_interval, report_longer_then, foreground_thread);
 
-    let telemetry2 = Arc::clone(&telemetry);
+    let telemetry2 = Arc::clone();
     cx.on_app_quit({
         move |_| {
             telemetry2.lock().send();
@@ -106,9 +106,9 @@ fn start_hang_detection(report_longer_then: Duration, client: Arc<Client>, cx: &
                 let action_stats = profiler::take_action_stats();
 
                 {
-                    let mut telemetry = telemetry.lock();
-                    telemetry.update(&task_stats, &action_stats);
-                    telemetry.send_periodically();
+                    
+                    
+                    
                 }
 
                 let should_write_trace = log.check_and_report(&task_stats, &action_stats);

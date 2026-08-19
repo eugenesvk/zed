@@ -1917,7 +1917,7 @@ impl Editor {
             }
         }
 
-        this.report_editor_event("Editor Opened", None, cx);
+        
         this
     }
 
@@ -6168,11 +6168,7 @@ impl Editor {
             return;
         };
 
-        self.report_inline_completion_event(
-            active_inline_completion.completion_id.clone(),
-            true,
-            cx,
-        );
+        
 
         match &active_inline_completion.completion {
             InlineCompletion::Move { target, .. } => {
@@ -6258,11 +6254,7 @@ impl Editor {
             return;
         }
 
-        self.report_inline_completion_event(
-            active_inline_completion.completion_id.clone(),
-            true,
-            cx,
-        );
+        
 
         match &active_inline_completion.completion {
             InlineCompletion::Move { target, .. } => {
@@ -6325,7 +6317,7 @@ impl Editor {
                 .as_ref()
                 .and_then(|active_completion| active_completion.completion_id.clone());
 
-            self.report_inline_completion_event(completion_id, false, cx);
+            
         }
 
         if let Some(provider) = self.edit_prediction_provider() {
@@ -6335,36 +6327,7 @@ impl Editor {
         self.take_active_inline_completion(cx)
     }
 
-    fn report_inline_completion_event(&self, id: Option<SharedString>, accepted: bool, cx: &App) {
-        let Some(provider) = self.edit_prediction_provider() else {
-            return;
-        };
-
-        let Some((_, buffer, _)) = self
-            .buffer
-            .read(cx)
-            .excerpt_containing(self.selections.newest_anchor().head(), cx)
-        else {
-            return;
-        };
-
-        let extension = buffer
-            .read(cx)
-            .file()
-            .and_then(|file| Some(file.path().extension()?.to_string_lossy().to_string()));
-
-        let event_type = match accepted {
-            true => "Edit Prediction Accepted",
-            false => "Edit Prediction Discarded",
-        };
-        telemetry::event!(
-            event_type,
-            provider = provider.name(),
-            prediction_id = id,
-            suggestion_accepted = accepted,
-            file_extension = extension,
-        );
-    }
+    
 
     pub fn has_active_inline_completion(&self) -> bool {
         self.active_inline_completion.is_some()
@@ -7964,7 +7927,7 @@ impl Editor {
                     .on_mouse_down(MouseButton::Left, |_, window, _| window.prevent_default())
                     .on_click(cx.listener(|this, _event, window, cx| {
                         cx.stop_propagation();
-                        this.report_editor_event("Edit Prediction Provider ToS Clicked", None, cx);
+                        
                         window.dispatch_action(
                             zed_actions::OpenZedPredictOnboarding.boxed_clone(),
                             cx,
@@ -17811,12 +17774,12 @@ impl Editor {
                 let Some(project) = &self.project else { return };
                 let (telemetry, is_via_ssh) = {
                     let project = project.read(cx);
-                    let telemetry = project.client().telemetry().clone();
+                    
                     let is_via_ssh = project.is_via_ssh();
                     (telemetry, is_via_ssh)
                 };
                 refresh_linked_ranges(self, window, cx);
-                telemetry.log_edit_event("editor", is_via_ssh);
+                
             }
             multi_buffer::Event::ExcerptsAdded {
                 buffer,
@@ -18257,52 +18220,7 @@ impl Editor {
             .collect()
     }
 
-    fn report_editor_event(
-        &self,
-        event_type: &'static str,
-        file_extension: Option<String>,
-        cx: &App,
-    ) {
-        if cfg!(any(test, feature = "test-support")) {
-            return;
-        }
-
-        let Some(project) = &self.project else { return };
-
-        // If None, we are in a file without an extension
-        let file = self
-            .buffer
-            .read(cx)
-            .as_singleton()
-            .and_then(|b| b.read(cx).file());
-        let file_extension = file_extension.or(file
-            .as_ref()
-            .and_then(|file| Path::new(file.file_name(cx)).extension())
-            .and_then(|e| e.to_str())
-            .map(|a| a.to_string()));
-
-        let vim_mode = vim_enabled(cx);
-
-        let edit_predictions_provider = all_language_settings(file, cx).edit_predictions.provider;
-        let copilot_enabled = edit_predictions_provider
-            == language::language_settings::EditPredictionProvider::Copilot;
-        let copilot_enabled_for_language = self
-            .buffer
-            .read(cx)
-            .language_settings(cx)
-            .show_edit_predictions;
-
-        let project = project.read(cx);
-        telemetry::event!(
-            event_type,
-            file_extension,
-            vim_mode,
-            copilot_enabled,
-            copilot_enabled_for_language,
-            edit_predictions_provider,
-            is_via_ssh = project.is_via_ssh(),
-        );
-    }
+    
 
     /// Copy the highlighted chunks to the clipboard as JSON. The format is an array of lines,
     /// with each line being an array of {text, highlight} objects.

@@ -17,7 +17,7 @@ use zeta_prompt::{Zeta2PromptInput, ZetaFormat, excerpt_range_for_format};
 use crate::PredictionProvider;
 use crate::example::{Example, ExamplePrediction, ExamplePrompt};
 use crate::progress::{InfoStyle, Progress, Step};
-use edit_prediction::example_spec::{ExampleSpec, TelemetrySource};
+use edit_prediction::example_spec::{ExampleSpec, };
 
 pub(crate) const SNOWFLAKE_SUCCESS_CODE: &str = "090001";
 pub(crate) const SNOWFLAKE_ASYNC_IN_PROGRESS_CODE: &str = "333334";
@@ -2004,13 +2004,7 @@ fn build_example_from_snowflake(
         edit_history,
         expected_patches: Vec::new(),
         rejected_patch: None,
-        telemetry: Some(TelemetrySource {
-            request_id,
-            device_id,
-            time,
-            rejection_reason,
-            was_shown,
-        }),
+        
         human_feedback: Vec::new(),
         rating: None,
     };

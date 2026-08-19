@@ -799,7 +799,7 @@ async fn build_example(
         edit_history,
         expected_patches: vec![expected_patch_with_header],
         rejected_patch: None,
-        telemetry: None,
+        
         human_feedback: Vec::new(),
         rating: None,
     };

@@ -255,9 +255,7 @@ impl Item for MultiDiffView {
         Editor::to_item_events(event, f)
     }
 
-    fn telemetry_event_text(&self) -> Option<&'static str> {
-        Some("Diff View Opened")
-    }
+    
 
     fn deactivated(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.editor

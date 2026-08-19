@@ -1,9 +1,9 @@
 
 use anyhow::{Result, anyhow};
 use client::{
-    Client, RefreshLlmTokenListener, TelemetrySettings, UserStore, global_llm_token, zed_urls,
+    Client, RefreshLlmTokenListener,  UserStore,  zed_urls,
 };
-use cloud_api_client::LlmApiToken;
+
 use cloud_api_types::OrganizationId;
 use cloud_api_types::Plan;
 use futures::FutureExt;
@@ -33,7 +33,7 @@ const MODELS_REFRESH_DEBOUNCE: Duration = Duration::from_secs(5 * 60);
 
 struct ClientTokenProvider {
     client: Arc<Client>,
-    llm_api_token: LlmApiToken,
+    
     user_store: Entity<UserStore>,
 }
 
@@ -58,7 +58,7 @@ impl CloudLlmTokenProvider for ClientTokenProvider {
             let organization_id =
                 organization_id.ok_or_else(|| anyhow!("No organization selected."))?;
             client
-                .cached_llm_token(&llm_api_token, organization_id)
+                .cached_llm_token( organization_id)
                 .await
         })
     }
@@ -73,7 +73,7 @@ impl CloudLlmTokenProvider for ClientTokenProvider {
             let organization_id =
                 organization_id.ok_or_else(|| anyhow!("No organization selected."))?;
             client
-                .refresh_llm_token(&llm_api_token, organization_id)
+                .refresh_llm_token( organization_id)
                 .await
         })
     }
@@ -120,7 +120,7 @@ impl State {
         let refresh_llm_token_listener = RefreshLlmTokenListener::global(cx);
         let token_provider = Arc::new(ClientTokenProvider {
             client: client.clone(),
-            llm_api_token: global_llm_token(cx),
+            
             user_store: user_store.clone(),
         });
 

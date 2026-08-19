@@ -1,5 +1,5 @@
 use language_models::provider::anthropic::telemetry::{
-    AnthropicCompletionType, AnthropicEventData, AnthropicEventType, report_anthropic_event,
+    AnthropicCompletionType, AnthropicEventData, AnthropicEventType, 
 };
 use std::mem;
 use std::ops::Range;
@@ -412,16 +412,7 @@ impl InlineAssistant {
                     language_name = buffer.language().map(|language| language.name().to_proto())
                 );
 
-                report_anthropic_event(
-                    &model.model,
-                    AnthropicEventData {
-                        completion_type: AnthropicCompletionType::Editor,
-                        event: AnthropicEventType::Invoked,
-                        language_name: buffer.language().map(|language| language.name().to_proto()),
-                        message_id: None,
-                    },
-                    cx,
-                );
+                
             }
         }
 
@@ -990,7 +981,7 @@ impl InlineAssistant {
                 let codegen = assist.codegen.read(cx);
                 let session_id = codegen.session_id();
                 let message_id = active_alternative.read(cx).message_id.clone();
-                let model_telemetry_id = model.model.telemetry_id();
+                
                 let model_provider_id = model.model.provider_id().to_string();
 
                 let (phase, event_type, anthropic_event_type) = if undo {
@@ -1012,22 +1003,13 @@ impl InlineAssistant {
                     phase,
                     session_id = session_id.to_string(),
                     kind = "inline",
-                    model = model_telemetry_id,
+                    model = 
                     model_provider = model_provider_id,
                     language_name = language_name,
                     message_id = message_id.as_deref(),
                 );
 
-                report_anthropic_event(
-                    &model.model,
-                    AnthropicEventData {
-                        completion_type: AnthropicCompletionType::Editor,
-                        event: anthropic_event_type,
-                        language_name,
-                        message_id,
-                    },
-                    cx,
-                );
+                
             }
 
             if undo {

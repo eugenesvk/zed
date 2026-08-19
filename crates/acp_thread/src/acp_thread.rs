@@ -3,7 +3,7 @@ mod diff;
 mod mention;
 mod terminal;
 pub use ::terminal::HeadlessTerminal;
-use action_log::{ActionLog, ActionLogTelemetry};
+use action_log::{ActionLog, };
 use agent_client_protocol::schema::{MaybeUndefined, v1 as acp};
 use anyhow::{Context as _, Result, anyhow};
 use collections::HashSet;
@@ -2142,14 +2142,7 @@ impl StreamingTextBuffer {
     const REVEAL_TARGET: f32 = 200.0;
 }
 
-impl From<&AcpThread> for ActionLogTelemetry {
-    fn from(value: &AcpThread) -> Self {
-        Self {
-            agent_telemetry_id: value.connection().telemetry_id(),
-            session_id: value.session_id.0.clone(),
-        }
-    }
-}
+
 
 #[derive(Debug)]
 pub enum AcpThreadEvent {
@@ -3207,7 +3200,7 @@ impl AcpThread {
         let path_style = self.project.read(cx).path_style(cx);
         let id = update.tool_call_id.clone();
 
-        let agent_telemetry_id = self.connection().telemetry_id();
+        
         let session = self.session_id();
         let parent_session_id = self.parent_session_id();
         if let ToolCallStatus::Completed | ToolCallStatus::Failed = status {
@@ -3218,7 +3211,6 @@ impl AcpThread {
             };
             telemetry::event!(
                 "Agent Tool Call Completed",
-                agent_telemetry_id,
                 session,
                 parent_session_id,
                 status
@@ -4025,7 +4017,7 @@ impl AcpThread {
         };
 
         Self::flush_streaming_text(&mut self.streaming_text_buffer, cx);
-        let telemetry = ActionLogTelemetry::from(&*self);
+        
         cx.spawn(async move |this, cx| {
             cx.update(|cx| truncate.run(client_id.clone(), cx)).await?;
             this.update(cx, |this, cx| {
@@ -4051,7 +4043,7 @@ impl AcpThread {
                     }
                 }
                 this.action_log().update(cx, |action_log, cx| {
-                    action_log.reject_all_edits(Some(telemetry), cx)
+                    action_log.reject_all_edits( cx)
                 })
             })?
             .await;

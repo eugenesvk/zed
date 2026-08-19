@@ -351,7 +351,7 @@ impl Render for Onboarding {
                                             .child(
                                                 v_flex()
                                                     .child(
-                                                        Headline::new("Welcome to Zed")
+                                                        Headline::new("Welcome to Zedless")
                                                             .size(HeadlineSize::Small),
                                                     )
                                                     .child(
@@ -400,9 +400,7 @@ impl Item for Onboarding {
         "Onboarding".into()
     }
 
-    fn telemetry_event_text(&self) -> Option<&'static str> {
-        Some("Onboarding Page Opened")
-    }
+    
 
     fn show_toolbar(&self) -> bool {
         false

@@ -1,6 +1,6 @@
 use super::{Client, UserStore};
 use anyhow::anyhow;
-use cloud_api_client::LlmApiToken;
+
 use cloud_api_types::websocket_protocol::MessageToClient;
 use cloud_llm_client::{EXPIRED_LLM_TOKEN_HEADER_NAME, OUTDATED_LLM_TOKEN_HEADER_NAME};
 use futures::StreamExt;
@@ -11,15 +11,11 @@ use gpui::{
 use std::sync::Arc;
 
 pub trait NeedsLlmTokenRefresh {
-    /// Returns whether the LLM token needs to be refreshed.
-    fn needs_llm_token_refresh(&self) -> bool;
+        
 }
 
 impl NeedsLlmTokenRefresh for http_client::Response<http_client::AsyncBody> {
-    fn needs_llm_token_refresh(&self) -> bool {
-        self.headers().get(EXPIRED_LLM_TOKEN_HEADER_NAME).is_some()
-            || self.headers().get(OUTDATED_LLM_TOKEN_HEADER_NAME).is_some()
-    }
+    
 }
 
 enum TokenRefreshMode {
@@ -27,12 +23,7 @@ enum TokenRefreshMode {
     ClearAndRefresh,
 }
 
-pub fn global_llm_token(cx: &App) -> LlmApiToken {
-    RefreshLlmTokenListener::global(cx)
-        .read(cx)
-        .llm_api_token
-        .clone()
-}
+
 
 struct GlobalRefreshLlmTokenListener(Entity<RefreshLlmTokenListener>);
 
@@ -43,7 +34,7 @@ pub struct LlmTokenRefreshedEvent;
 pub struct RefreshLlmTokenListener {
     client: Arc<Client>,
     user_store: Entity<UserStore>,
-    llm_api_token: LlmApiToken,
+    
     _clear_llm_token_on_sign_out: Task<()>,
     _subscription: Subscription,
 }
@@ -92,7 +83,7 @@ impl RefreshLlmTokenListener {
         Self {
             client,
             user_store,
-            llm_api_token,
+            
             _clear_llm_token_on_sign_out: clear_llm_token_on_sign_out,
             _subscription: subscription,
         }
@@ -113,12 +104,12 @@ impl RefreshLlmTokenListener {
             match mode {
                 TokenRefreshMode::Refresh => {
                     client
-                        .refresh_llm_token(&llm_api_token, organization_id)
+                        .refresh_llm_token( organization_id)
                         .await?;
                 }
                 TokenRefreshMode::ClearAndRefresh => {
                     client
-                        .clear_and_refresh_llm_token(&llm_api_token, organization_id)
+                        .clear_and_refresh_llm_token( organization_id)
                         .await?;
                 }
             }

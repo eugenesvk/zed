@@ -291,8 +291,7 @@ pub struct SettingsContent {
 
     /// Configuration for session-related features
     pub session: Option<SessionSettingsContent>,
-    /// Control what info is collected by Zed.
-    pub telemetry: Option<TelemetrySettingsContent>,
+    
 
     /// Configuration of the terminal in Zed.
     pub terminal: Option<TerminalSettingsContent>,
@@ -518,7 +517,7 @@ pub enum BaseKeymapContent {
 
 impl strum::VariantNames for BaseKeymapContent {
     const VARIANTS: &'static [&'static str] = &[
-        "Zed",
+        "Zedless",
         "VSCode",
         "JetBrains",
         "Sublime Text",
@@ -574,34 +573,11 @@ impl From<Option<String>> for AudioOutputDeviceName {
     }
 }
 
-/// Control what info is collected by Zed.
-#[with_fallible_options]
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema, Debug, MergeFrom)]
-pub struct TelemetrySettingsContent {
-    /// Send debug info like crash reports.
-    ///
-    /// Default: true
-    pub diagnostics: Option<bool>,
-    /// Send anonymized usage data like what languages you're using Zed with.
-    ///
-    /// Default: true
-    pub metrics: Option<bool>,
-    /// Allow sending requests to Anthropic models that cannot be offered with
-    /// Zero Data Retention.
-    ///
-    /// Default: false
-    pub anthropic_retention: Option<bool>,
-}
 
-impl Default for TelemetrySettingsContent {
-    fn default() -> Self {
-        Self {
-            diagnostics: Some(true),
-            metrics: Some(true),
-            anthropic_retention: Some(false),
-        }
-    }
-}
+
+
+
+
 
 #[with_fallible_options]
 #[derive(Default, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema, Clone, MergeFrom)]

@@ -232,9 +232,7 @@ pub trait AgentConnection {
         None
     }
 
-    fn telemetry(&self) -> Option<Rc<dyn AgentTelemetry>> {
-        None
-    }
+    
 
     fn session_modes(
         &self,

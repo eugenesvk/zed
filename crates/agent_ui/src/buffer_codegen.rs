@@ -646,7 +646,7 @@ impl CodegenAlternative {
     ) -> Task<()> {
         let anthropic_reporter = AnthropicEventReporter::new(&model, cx);
         let session_id = self.session_id;
-        let model_telemetry_id = model.telemetry_id();
+        
         let model_provider_id = model.provider_id().to_string();
         let start_time = Instant::now();
 
@@ -714,7 +714,7 @@ impl CodegenAlternative {
                 .ok()
                 .and_then(|stream| stream.message_id.clone());
             let generate = async {
-                let model_telemetry_id = model_telemetry_id.clone();
+                
                 let model_provider_id = model_provider_id.clone();
                 let (mut diff_tx, mut diff_rx) = mpsc::channel(1);
                 let message_id = message_id.clone();
@@ -829,7 +829,7 @@ impl CodegenAlternative {
                             kind = "inline",
                             phase = "response",
                             session_id = session_id.to_string(),
-                            model = model_telemetry_id,
+                            model = 
                             model_provider = model_provider_id,
                             language_name = language_name.as_ref().map(|n| n.to_string()),
                             message_id = message_id.as_deref(),
@@ -919,7 +919,7 @@ impl CodegenAlternative {
                         let usage = usage.lock();
                         telemetry::event!(
                             "Inline Assistant Completion",
-                            model = model_telemetry_id,
+                            model = 
                             model_provider = model_provider_id,
                             input_tokens = usage.input_tokens,
                             output_tokens = usage.output_tokens,

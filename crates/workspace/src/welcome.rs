@@ -448,9 +448,9 @@ impl Render for WelcomePage {
         };
 
         let welcome_label = if self.fallback_to_recent_projects {
-            "Welcome back to Zed"
+            "Welcome back to Zedless"
         } else {
-            "Welcome to Zed"
+            "Welcome to Zedless"
         };
 
         h_flex()
@@ -526,9 +526,7 @@ impl Item for WelcomePage {
         "Welcome".into()
     }
 
-    fn telemetry_event_text(&self) -> Option<&'static str> {
-        Some("New Welcome Page Opened")
-    }
+    
 
     fn show_toolbar(&self) -> bool {
         false

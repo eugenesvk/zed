@@ -435,9 +435,7 @@ impl Item for UnstagedDiff {
         "Unstaged Changes".into()
     }
 
-    fn telemetry_event_text(&self) -> Option<&'static str> {
-        Some("Git Unstaged Diff Opened")
-    }
+    
 
     fn as_searchable(&self, _: &Entity<Self>, cx: &App) -> Option<Box<dyn SearchableItemHandle>> {
         Some(Box::new(self.diff.read(cx).editor().clone()))

@@ -45,8 +45,7 @@ pub struct ExampleSpec {
     pub expected_patches: Vec<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rejected_patch: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub telemetry: Option<TelemetrySource>,
+    
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub human_feedback: Vec<HumanFeedback>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -58,15 +57,8 @@ pub struct HumanFeedback {
     pub message: String,
 }
 
-/// Metadata for examples sourced from production telemetry (rejected predictions).
-#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
-pub struct TelemetrySource {
-    pub request_id: String,
-    pub device_id: String,
-    pub time: String,
-    pub rejection_reason: String,
-    pub was_shown: bool,
-}
+
+
 
 const REASONING_HEADING: &str = "Reasoning";
 const UNCOMMITTED_DIFF_HEADING: &str = "Uncommitted Diff";
@@ -273,7 +265,7 @@ impl ExampleSpec {
             edit_history: String::new(),
             expected_patches: Vec::new(),
             rejected_patch: None,
-            telemetry: None,
+            
             human_feedback: Vec::new(),
             rating: None,
         };
@@ -534,7 +526,7 @@ mod tests {
             edit_history: String::new(),
             expected_patches: Vec::new(),
             rejected_patch: None,
-            telemetry: None,
+            
             human_feedback: Vec::new(),
             rating: None,
         };
@@ -673,7 +665,7 @@ mod tests {
             edit_history: String::new(),
             expected_patches: Vec::new(),
             rejected_patch: None,
-            telemetry: None,
+            
             human_feedback: Vec::new(),
             rating: None,
         };
@@ -748,7 +740,7 @@ mod tests {
             edit_history: String::new(),
             expected_patches: Vec::new(),
             rejected_patch: None,
-            telemetry: None,
+            
             human_feedback: Vec::new(),
             rating: None,
         };

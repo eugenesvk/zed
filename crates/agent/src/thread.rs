@@ -3412,7 +3412,7 @@ impl Thread {
                 // completion that follows it, so `tokens_after` reflects the
                 // real post-compaction context size.
                 if let Some(telemetry) = self.pending_compaction_telemetry.take() {
-                    telemetry.emit("succeeded", None, Some(total_input_tokens(usage)));
+                    
                 }
                 self.update_token_usage(usage, cx);
             }
@@ -4386,7 +4386,7 @@ impl Thread {
     /// no-op if no compaction telemetry is pending.
     fn emit_compaction_telemetry_outcome(&mut self, status: &'static str, error: Option<String>) {
         if let Some(telemetry) = self.pending_compaction_telemetry.take() {
-            telemetry.emit(status, error, None);
+            
         }
     }
 
@@ -7648,11 +7648,8 @@ mod tests {
         );
 
         thread.read_with(cx, |thread, _cx| {
-            let telemetry = thread
-                .pending_compaction_telemetry
-                .as_ref()
-                .expect("pending telemetry");
-            assert_eq!(telemetry.model, compaction_model.telemetry_id());
+            
+            assert_eq!(.model, compaction_model.telemetry_id());
         });
 
         compaction_model.send_completion_stream_text_chunk(&request, "summary");
@@ -7709,11 +7706,8 @@ mod tests {
         );
 
         thread.read_with(cx, |thread, _cx| {
-            let telemetry = thread
-                .pending_compaction_telemetry
-                .as_ref()
-                .expect("pending telemetry");
-            assert_eq!(telemetry.model, thread_model.telemetry_id());
+            
+            assert_eq!(.model, thread_model.telemetry_id());
         });
 
         thread_model.send_completion_stream_text_chunk(&request, "summary");

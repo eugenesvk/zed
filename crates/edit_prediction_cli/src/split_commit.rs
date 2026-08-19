@@ -759,7 +759,7 @@ pub fn generate_evaluation_example_from_ordered_commit(
         uncommitted_diff_contains_edit_history: false,
         rejected_patch: None,
 
-        telemetry: None,
+        
         human_feedback: Vec::new(),
         rating: None,
     })
@@ -2096,7 +2096,7 @@ Date: Mon Jan 1 00:00:00 2024
             uncommitted_diff_contains_edit_history: false,
             rejected_patch: None,
 
-            telemetry: None,
+            
             human_feedback: Vec::new(),
             rating: None,
         };

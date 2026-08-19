@@ -1109,7 +1109,7 @@ mod tests {
             .map(|row| (&source[row.key], &source[row.value]))
             .collect::<Vec<_>>();
 
-        assert_eq!(pairs, vec![("title", "Post"), ("author", "Zed")]);
+        assert_eq!(pairs, vec![("title", "Post"), ("author", "Zedless")]);
     }
 
     #[test]

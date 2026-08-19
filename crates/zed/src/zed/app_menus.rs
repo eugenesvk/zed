@@ -60,7 +60,7 @@ pub fn app_menus(cx: &mut App) -> Vec<Menu> {
 
     vec![
         Menu {
-            name: "Zed".into(),
+            name: "Zedless".into(),
             disabled: false,
             items: vec![
                 MenuItem::action("About Zed", zed_actions::About),

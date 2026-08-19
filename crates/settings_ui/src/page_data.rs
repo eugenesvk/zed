@@ -413,7 +413,7 @@ fn general_page(cx: &App) -> SettingsPage {
                         settings_content
                             .telemetry
                             .as_ref()
-                            .and_then(|telemetry| telemetry.diagnostics.as_ref())
+                            .and_then(|telemetry| )
                     },
                     write: |settings_content, value, _| {
                         settings_content
@@ -435,7 +435,7 @@ fn general_page(cx: &App) -> SettingsPage {
                         settings_content
                             .telemetry
                             .as_ref()
-                            .and_then(|telemetry| telemetry.metrics.as_ref())
+                            .and_then(|telemetry| )
                     },
                     write: |settings_content, value, _| {
                         settings_content.telemetry.get_or_insert_default().metrics = value;
@@ -454,7 +454,7 @@ fn general_page(cx: &App) -> SettingsPage {
                         settings_content
                             .telemetry
                             .as_ref()
-                            .and_then(|telemetry| telemetry.anthropic_retention.as_ref())
+                            .and_then(|telemetry| )
                     },
                     write: |settings_content, value, _| {
                         settings_content
