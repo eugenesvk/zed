@@ -1748,7 +1748,7 @@ impl ThreadView {
             if has_earlier_edits {
                 thread.update(cx, |thread, cx| {
                     thread.action_log().update(cx, |action_log, cx| {
-                        action_log.keep_all_edits(None, cx);
+                        action_log.keep_all_edits(cx);
                     });
                 });
             }

@@ -328,29 +328,7 @@ pub(crate) fn request_prediction_with_zeta(
                             (request_id, output_text, None, None)
                         }
                     })
-                } else {
-                    let (response, usage) = EditPredictionStore::send_v3_request(
-                        prompt_input.clone(),
-                        preferred_experiment.clone(),
-                        client,
-                        
-                        organization_id,
-                        app_version,
-                        trigger,
-                        mode,
-                    )
-                    .await?;
-                
-                    let request_id = EditPredictionId(response.request_id.into());
-                    let model_version = response.model_version;
-                    let parsed_output = ParsedOutput {
-                        new_editable_region: response.output,
-                        range_in_excerpt: response.editable_range,
-                        cursor_offset_in_new_editable_region: response.cursor_offset,
-                    };
-                
-                    Some((request_id, Some(parsed_output), model_version, usage))
-                })
+                } else { None })
             else {
                 return Ok((None, None));
             };
