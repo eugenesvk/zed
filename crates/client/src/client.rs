@@ -1,7 +1,7 @@
 #[cfg(any(test, feature = "test-support"))]
 pub mod test;
 
-mod llm_token;
+
 mod proxy;
 
 pub mod user;
@@ -55,7 +55,7 @@ use tokio::net::TcpStream;
 use url::Url;
 use util::{ConnectionResult, ResultExt};
 
-pub use llm_token::*;
+
 pub use rpc::*;
 
 pub use user::*;
