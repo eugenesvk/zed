@@ -487,24 +487,7 @@ impl remote::RemoteClientDelegate for RemoteClientDelegate {
 
     
 
-    fn get_download_url(
-        &self,
-        platform: RemotePlatform,
-        release_channel: ReleaseChannel,
-        version: Option<Version>,
-        cx: &mut AsyncApp,
-    ) -> Task<Result<Option<String>>> {
-        cx.spawn(async move |cx| {
-            AutoUpdater::get_remote_server_release_url(
-                release_channel,
-                version,
-                platform.os.as_str(),
-                platform.arch.as_str(),
-                cx,
-            )
-            .await
-        })
-    }
+    
 }
 
 impl RemoteClientDelegate {
@@ -624,24 +607,7 @@ impl remote::RemoteClientDelegate for BackgroundRemoteClientDelegate {
 
     
 
-    fn get_download_url(
-        &self,
-        platform: RemotePlatform,
-        release_channel: ReleaseChannel,
-        version: Option<Version>,
-        cx: &mut AsyncApp,
-    ) -> Task<Result<Option<String>>> {
-        cx.spawn(async move |cx| {
-            AutoUpdater::get_remote_server_release_url(
-                release_channel,
-                version,
-                platform.os.as_str(),
-                platform.arch.as_str(),
-                cx,
-            )
-            .await
-        })
-    }
+    
 }
 
 pub fn connect(
