@@ -21,9 +21,7 @@ use language_model::{
     LanguageModelRequestTool, LanguageModelTextStream, LanguageModelToolChoice,
     LanguageModelToolUse, LanguageModelToolUseId, Role, TokenUsage,
 };
-use language_models::provider::anthropic::telemetry::{
-      AnthropicEventReporter, 
-};
+
 use multi_buffer::MultiBufferRow;
 use parking_lot::Mutex;
 use prompt_store::PromptBuilder;
@@ -824,18 +822,7 @@ impl CodegenAlternative {
                         let result = diff.await;
 
                         let error_message = result.as_ref().err().map(|error| error.to_string());
-                        telemetry::event!(
-                            "Assistant Responded",
-                            kind = "inline",
-                            phase = "response",
-                            session_id = session_id.to_string(),
-                            model = 
-                            model_provider = model_provider_id,
-                            language_name = language_name.as_ref().map(|n| n.to_string()),
-                            message_id = message_id.as_deref(),
-                            response_latency = response_latency,
-                            error_message = error_message.as_deref(),
-                        );
+                        
 
                         
 
@@ -912,13 +899,7 @@ impl CodegenAlternative {
                     this.completion = Some(completion.lock().clone());
                     if let Some(usage) = token_usage {
                         let usage = usage.lock();
-                        telemetry::event!(
-                            "Inline Assistant Completion",
-                            model = 
-                            model_provider = model_provider_id,
-                            input_tokens = usage.input_tokens,
-                            output_tokens = usage.output_tokens,
-                        )
+                        ()
                     }
 
                     cx.emit(CodegenEvent::Finished);

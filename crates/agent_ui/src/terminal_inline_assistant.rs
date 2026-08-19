@@ -18,9 +18,7 @@ use language_model::{
     CompletionIntent, ConfiguredModel, LanguageModelRegistry, LanguageModelRequest,
     LanguageModelRequestMessage, Role,
 };
-use language_models::provider::anthropic::telemetry::{
-       
-};
+
 use project::Project;
 use prompt_store::PromptBuilder;
 use std::sync::Arc;
@@ -314,15 +312,7 @@ impl TerminalInlineAssistant {
                 };
 
                 // Fire Zed telemetry
-                telemetry::event!(
-                    event_type,
-                    kind = "inline_terminal",
-                    phase = phase,
-                    model = 
-                    model_provider = model_provider_id,
-                    message_id = message_id,
-                    session_id = session_id,
-                );
+                
 
                 
             }

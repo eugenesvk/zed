@@ -90,11 +90,7 @@ pub fn init(client: Arc<Client>, user_store: Entity<UserStore>, cx: &mut App) {
             let new_provider_config = edit_prediction_provider_config_for_settings(cx);
 
             if new_provider_config != previous_config {
-                telemetry::event!(
-                    "Edit Prediction Provider Changed",
-                    from = previous_config.map(|config| config.name()),
-                    to = new_provider_config.map(|config| config.name())
-                );
+                
 
                 previous_config = new_provider_config;
                 assign_edit_prediction_providers(

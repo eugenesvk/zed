@@ -1395,11 +1395,7 @@ impl Render for LspButton {
             PopoverMenu::new("lsp-tool")
                 .on_open(Rc::new(move |_window, cx| {
                     
-                    telemetry::event!(
-                        "Toolbar Menu Opened",
-                        name = "Language Servers",
-                        is_via_ssh,
-                    );
+                    
                 }))
                 .menu(move |_, cx| {
                     lsp_button

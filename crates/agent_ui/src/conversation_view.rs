@@ -468,12 +468,7 @@ impl Conversation {
         
         let session_id = thread.read(cx).session_id().clone();
 
-        telemetry::event!(
-            "Agent Tool Call Authorized",
-            agent = 
-            session = session_id,
-            option = outcome.option_kind
-        );
+        
 
         thread.update(cx, |thread, cx| {
             thread.authorize_tool_call(tool_call_id, outcome, cx);
@@ -1095,13 +1090,7 @@ impl ConversationView {
             })
             .log_err();
 
-            telemetry::event!(
-                "Agent Thread Started",
-                agent = connection.telemetry_id(),
-                source = source.as_str(),
-                side = side,
-                thread_location = thread_location
-            );
+            
 
             let mut resumed_without_history = false;
             let result = if let Some(session_id) = resume_session_id.clone() {
@@ -1939,15 +1928,9 @@ impl ConversationView {
                     .await;
 
                     match &result {
-                        Ok(_) => telemetry::event!(
-                            "Authenticate Agent Succeeded",
-                            agent = 
-                        ),
+                        Ok(_) => (),
                         Err(_) => {
-                            telemetry::event!(
-                                "Authenticate Agent Failed",
-                                agent = 
-                            )
+                            ()
                         }
                     }
 
@@ -1992,12 +1975,9 @@ impl ConversationView {
                 let result = authenticate.await;
 
                 match &result {
-                    Ok(_) => telemetry::event!(
-                        "Authenticate Agent Succeeded",
-                        agent = 
-                    ),
+                    Ok(_) => (),
                     Err(_) => {
-                        telemetry::event!("Authenticate Agent Failed", agent = )
+                        ()
                     }
                 }
 
@@ -2270,11 +2250,7 @@ impl ConversationView {
                             })
                             .on_click({
                                 cx.listener(move |this, _, window, cx| {
-                                    telemetry::event!(
-                                        "Authenticate Agent Started",
-                                        agent = 
-                                        method = method_id
-                                    );
+                                    
 
                                     this.authenticate(
                                         acp::AuthMethodId::new(method_id.clone()),

@@ -112,11 +112,7 @@ impl ProfileSelector {
 
         if let Some((next_profile_id, _)) = profiles.get_index(next_index) {
             self.provider.set_profile(next_profile_id.clone(), cx);
-            telemetry::event!(
-                "Agent Profile Switched",
-                profile_id = next_profile_id.as_str(),
-                source = "cycle"
-            );
+            
             cx.notify();
         }
     }
@@ -590,11 +586,7 @@ impl PickerDelegate for ProfilePickerDelegate {
 
                     provider.set_profile(profile_id.clone(), cx);
 
-                    telemetry::event!(
-                        "Agent Profile Switched",
-                        profile_id = profile_id.as_str(),
-                        source = "picker"
-                    );
+                    
                 }
 
                 cx.emit(DismissEvent);

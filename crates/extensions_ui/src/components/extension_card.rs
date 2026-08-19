@@ -203,7 +203,7 @@ impl ExtensionCard {
                 let extension_id = extension_id.clone();
                 move |_, _, cx| {
                     if !is_dev {
-                        telemetry::event!("Extension Uninstalled", extension_id);
+                        
                     }
                     ExtensionStore::global(cx).update(cx, |store, cx| {
                         store
@@ -292,7 +292,7 @@ impl ExtensionCard {
             button.on_click({
                 let extension_id = extension_id.clone();
                 move |_, _, cx| {
-                    telemetry::event!("Extension Installed");
+                    
                     ExtensionStore::global(cx).update(cx, |store, cx| {
                         store.install_latest_extension(extension_id.clone(), cx)
                     });
@@ -372,7 +372,7 @@ impl ExtensionCard {
                             let extension_id = extension.id.clone();
                             let version = extension.manifest.version.clone();
                             move |_, _, cx| {
-                                telemetry::event!("Extension Installed", extension_id, version);
+                                
                                 ExtensionStore::global(cx).update(cx, |store, cx| {
                                     store
                                         .upgrade_extension(

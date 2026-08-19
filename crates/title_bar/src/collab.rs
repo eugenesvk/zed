@@ -56,20 +56,12 @@ pub fn toggle_screen_sharing(
                     });
                 let should_unshare_current_screen = room.is_sharing_screen();
                 let unshared_current_screen = should_unshare_current_screen.then(|| {
-                    telemetry::event!(
-                        "Screen Share Disabled",
-                        room_id = room.id(),
-                        channel_id = room.channel_id(),
-                    );
+                    
                     room.unshare_screen(clicked_on_currently_shared_screen || screen.is_none(), cx)
                 });
                 if let Some(screen) = screen {
                     if !should_unshare_current_screen {
-                        telemetry::event!(
-                            "Screen Share Enabled",
-                            room_id = room.id(),
-                            channel_id = room.channel_id(),
-                        );
+                        
                     }
                     cx.spawn(async move |room, cx| {
                         unshared_current_screen.transpose()?;
@@ -99,11 +91,7 @@ pub fn toggle_mute(cx: &mut App) {
             } else {
                 "Microphone Disabled"
             };
-            telemetry::event!(
-                operation,
-                room_id = room.id(),
-                channel_id = room.channel_id(),
-            );
+            
 
             room.toggle_mute(cx)
         });

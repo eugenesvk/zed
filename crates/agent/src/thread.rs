@@ -2813,17 +2813,7 @@ impl Thread {
                 anyhow::Ok((model, request))
             })??;
 
-            telemetry::event!(
-                "Agent Thread Completion",
-                thread_id = this.read_with(cx, |this, _| this.id.to_string())?,
-                parent_thread_id = this.read_with(cx, |this, _| this
-                    .parent_thread_id()
-                    .map(|id| id.to_string()))?,
-                prompt_id = this.read_with(cx, |this, _| this.prompt_id.to_string())?,
-                model = model.telemetry_id(),
-                model_provider = model.provider_id().to_string(),
-                attempt
-            );
+            
 
             log::debug!("Calling model.stream_completion, attempt {}", attempt);
 
@@ -3376,18 +3366,7 @@ impl Thread {
                 ));
             }
             UsageUpdate(usage) => {
-                telemetry::event!(
-                    "Agent Thread Completion Usage Updated",
-                    thread_id = self.id.to_string(),
-                    parent_thread_id = self.parent_thread_id().map(|id| id.to_string()),
-                    prompt_id = self.prompt_id.to_string(),
-                    model = self.model().map(|m| m.telemetry_id()),
-                    model_provider = self.model().map(|m| m.provider_id().to_string()),
-                    input_tokens = usage.input_tokens,
-                    output_tokens = usage.output_tokens,
-                    cache_creation_input_tokens = usage.cache_creation_input_tokens,
-                    cache_read_input_tokens = usage.cache_read_input_tokens,
-                );
+                
                 // A successful compaction defers its telemetry until the first
                 // completion that follows it, so `tokens_after` reflects the
                 // real post-compaction context size.
@@ -4640,25 +4619,7 @@ struct CompactionTelemetry {
 
 impl CompactionTelemetry {
     fn emit(self, status: &'static str, error: Option<String>, tokens_after: Option<u64>) {
-        telemetry::event!(
-            "Agent Compaction Completed",
-            trigger = self.trigger,
-            status = status,
-            error = error,
-            thread_id = self.thread_id,
-            parent_thread_id = self.parent_thread_id,
-            prompt_id = self.prompt_id,
-            model = self.model,
-            compaction_model = self.compaction_model,
-            thinking_effort = self.thinking_effort,
-            max_tokens = self.max_tokens,
-            tokens_before = self.tokens_before,
-            tokens_after = tokens_after,
-            auto_compact_enabled = self.auto_compact_enabled,
-            auto_compact_threshold = self.auto_compact_threshold,
-            auto_compact_threshold_tokens = self.auto_compact_threshold_tokens,
-            retries = self.retries,
-        );
+        
     }
 }
 

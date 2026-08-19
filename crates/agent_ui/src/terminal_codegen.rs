@@ -2,9 +2,7 @@ use crate::inline_prompt_editor::CodegenStatus;
 use futures::{SinkExt, StreamExt, channel::mpsc};
 use gpui::{App, AppContext as _, Context, Entity, EventEmitter, Task};
 use language_model::{ConfiguredModel, LanguageModelRegistry, LanguageModelRequest};
-use language_models::provider::anthropic::telemetry::{
-      AnthropicEventReporter, 
-};
+
 use std::time::Instant;
 use terminal::Terminal;
 use uuid::Uuid;
@@ -84,18 +82,7 @@ impl TerminalCodegen {
 
                         let error_message = result.as_ref().err().map(|error| error.to_string());
 
-                        telemetry::event!(
-                            "Assistant Responded",
-                            session_id = session_id.to_string(),
-                            kind = "inline_terminal",
-                            phase = "response",
-                            model = 
-                            model_provider = model_provider_id,
-                            language_name = Option::<&str>::None,
-                            message_id = message_id,
-                            response_latency = response_latency,
-                            error_message = error_message,
-                        );
+                        
 
                         
 
