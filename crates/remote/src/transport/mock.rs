@@ -332,15 +332,7 @@ impl RemoteClientDelegate for MockDelegate {
 
     
 
-    fn get_download_url(
-        &self,
-        _platform: crate::RemotePlatform,
-        _release_channel: release_channel::ReleaseChannel,
-        _version: Option<semver::Version>,
-        _cx: &mut AsyncApp,
-    ) -> Task<Result<Option<String>>> {
-        unreachable!("MockDelegate::get_download_url should not be called in tests")
-    }
+    
 
     fn set_status(&self, _status: Option<&str>, _cx: &mut AsyncApp) {}
 }

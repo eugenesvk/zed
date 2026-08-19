@@ -140,13 +140,7 @@ pub trait RemoteClientDelegate: Send + Sync {
         cancellation: oneshot::Receiver<()>,
         cx: &mut AsyncApp,
     );
-    fn get_download_url(
-        &self,
-        platform: RemotePlatform,
-        release_channel: ReleaseChannel,
-        version: Option<Version>,
-        cx: &mut AsyncApp,
-    ) -> Task<Result<Option<String>>>;
+    
     
     fn set_status(&self, status: Option<&str>, cx: &mut AsyncApp);
 }
