@@ -1275,24 +1275,7 @@ impl TitleBar {
                 let is_custom = matches!(current_layout, WindowLayout::Custom(_));
 
                 ContextMenu::build(window, cx, |menu, _, _cx| {
-                    menu.when(is_signed_in, |this| {
-                        let username = username.clone();
-                        this.custom_entry(
-                            move |_window, _cx| {
-                                let username = username.clone().unwrap_or_default();
-
-                                h_flex()
-                                    .w_full()
-                                    .justify_between()
-                                    .child(Label::new(username))
-                                    .into_any_element()
-                            },
-                            move |_, cx| {
-                                cx.open_url(&zed_urls::account_url(cx));
-                            },
-                        )
-                        .separator()
-                    })
+                    menu
                     .when(show_update_button, |this| {
                         this.custom_entry(
                             move |_window, _cx| {
@@ -1316,18 +1299,18 @@ impl TitleBar {
                     })
                     .map(|this| {
                         let mut this = this.header("Organization");
-
+                    
                         for (organization, plan) in &organizations {
                             let organization = organization.clone();
                             let plan = *plan;
-
+                    
                             let is_current =
                                 current_organization
                                     .as_ref()
                                     .is_some_and(|current_organization| {
                                         current_organization.id == organization.id
                                     });
-
+                    
                             this = this.custom_entry(
                                 {
                                     let organization = organization.clone();
@@ -1365,7 +1348,7 @@ impl TitleBar {
                                 },
                             );
                         }
-
+                    
                         this.separator()
                     })
                     .action("Settings", zed_actions::OpenSettings.boxed_clone())
@@ -1411,10 +1394,6 @@ impl TitleBar {
                                     )
                                 })
                             })
-                    })
-                    .when(is_signed_in, |this| {
-                        this.separator()
-                            .action("Sign Out", client::SignOut.boxed_clone())
                     })
                 })
                 .into()
