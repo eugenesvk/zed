@@ -123,56 +123,8 @@ impl Render for OnboardingBanner {
         }
 
         let border_color = cx.theme().colors().editor_foreground.opacity(0.3);
-        let banner = h_flex()
-            .rounded_sm()
-            .border_1()
-            .border_color(border_color)
-            .occlude()
-            .child(
-                ButtonLike::new("try-a-feature")
-                    .child(
-                        h_flex()
-                            .h_full()
-                            .gap_1()
-                            .child(Icon::new(self.details.icon_name).size(IconSize::XSmall))
-                            .child(
-                                h_flex()
-                                    .gap_0p5()
-                                    .when_some(self.details.subtitle.as_ref(), |this, subtitle| {
-                                        this.child(
-                                            Label::new(subtitle)
-                                                .size(LabelSize::Small)
-                                                .color(Color::Muted),
-                                        )
-                                    })
-                                    .child(Label::new(&self.details.label).size(LabelSize::Small)),
-                            ),
-                    )
-                    .on_click(cx.listener(|this, _, window, cx| {
-                        telemetry::event!("Banner Clicked", source = this.source);
-                        this.dismiss(cx);
-                        window.dispatch_action(this.details.action.boxed_clone(), cx)
-                    })),
-            )
-            .child(
-                div().border_l_1().border_color(border_color).child(
-                    IconButton::new("close", IconName::Close)
-                        .icon_size(IconSize::Indicator)
-                        .on_click(cx.listener(|this, _, _window, cx| {
-                            telemetry::event!("Banner Dismissed", source = this.source);
-                            this.dismiss(cx)
-                        }))
-                        .tooltip(|_window, cx| {
-                            Tooltip::with_meta(
-                                "Close Announcement Banner",
-                                None,
-                                "It won't show again for this feature",
-                                cx,
-                            )
-                        }),
-                ),
-            );
+        
 
-        div().pr_2().child(banner)
+        div().pr_2().child()
     }
 }
