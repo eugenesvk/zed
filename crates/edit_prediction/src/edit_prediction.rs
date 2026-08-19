@@ -80,7 +80,7 @@ mod license_detection;
 
 pub mod metrics;
 pub mod ollama;
-mod onboarding_modal;
+
 pub mod open_ai_response;
 mod prediction;
 pub mod sweep_prompt;
@@ -100,7 +100,7 @@ use crate::example_spec::RecentFile;
 use crate::license_detection::LicenseDetectionWatcher;
 
 pub use crate::metrics::{KeptRateResult, compute_kept_rate};
-use crate::onboarding_modal::ZedPredictModal;
+
 use crate::prediction::EditPredictionResult;
 pub use crate::prediction::{EditPrediction, EditPredictionId, EditPredictionInputs};
 pub use language_model::ApiKeyState;
