@@ -1,7 +1,7 @@
 use crate::{AgentTool, Template, Templates, TerminalTool, TerminalToolInput};
 use Role::*;
 use anyhow::{Context as _, Result};
-use client::{Client, RefreshLlmTokenListener, UserStore};
+use client::{Client,  UserStore};
 use futures::{FutureExt as _, StreamExt};
 use gpui::{AppContext as _, AsyncApp, TestAppContext};
 use http_client::StatusCode;

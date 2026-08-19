@@ -1,7 +1,7 @@
 use crate::{AgentServer, AgentServerDelegate};
 use acp_thread::{AcpThread, AgentThreadEntry, ToolCall, ToolCallStatus};
 use agent_client_protocol::schema::v1 as acp;
-use client::RefreshLlmTokenListener;
+
 use futures::{FutureExt, StreamExt, channel::mpsc, select};
 use gpui::AppContext;
 use gpui::{Entity, TestAppContext};

@@ -1,7 +1,7 @@
 
 use anyhow::{Result, anyhow};
 use client::{
-    Client, RefreshLlmTokenListener,  UserStore,  zed_urls,
+    Client,   UserStore,  zed_urls,
 };
 
 use cloud_api_types::OrganizationId;

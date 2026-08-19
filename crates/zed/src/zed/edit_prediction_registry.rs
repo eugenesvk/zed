@@ -116,7 +116,7 @@ fn edit_prediction_provider_config_for_settings(cx: &App) -> Option<EditPredicti
     let provider = settings.provider;
     match provider {
         EditPredictionProvider::None => None,
-        EditPredictionProvider::Copilot => Some(EditPredictionProviderConfig::Copilot),
+        
         EditPredictionProvider::Zed => {
             Some(EditPredictionProviderConfig::Zed(EditPredictionModel::Zeta))
         }
@@ -151,9 +151,7 @@ fn edit_prediction_provider_config_for_settings(cx: &App) -> Option<EditPredicti
             }
         }
 
-        EditPredictionProvider::Mercury => Some(EditPredictionProviderConfig::Zed(
-            EditPredictionModel::Mercury,
-        )),
+        
     }
 }
 
@@ -181,7 +179,7 @@ fn infer_prompt_format(model: &str) -> Option<EditPredictionPromptFormat> {
 
 #[derive(Copy, Clone, PartialEq, Eq)]
 enum EditPredictionProviderConfig {
-    Copilot,
+    
     Codestral,
     Zed(EditPredictionModel),
 }
@@ -189,13 +187,13 @@ enum EditPredictionProviderConfig {
 impl EditPredictionProviderConfig {
     fn name(&self) -> &'static str {
         match self {
-            EditPredictionProviderConfig::Copilot => "Copilot",
+            
             EditPredictionProviderConfig::Codestral => "Codestral",
             EditPredictionProviderConfig::Zed(model) => match model {
                 EditPredictionModel::Zeta => "Zeta",
                 EditPredictionModel::Fim { .. } => "FIM",
                 EditPredictionModel::SweepPrompt => "Sweep Prompt",
-                EditPredictionModel::Mercury => "Mercury",
+                
             },
         }
     }
@@ -253,24 +251,7 @@ fn assign_edit_prediction_provider(
                 None, trigger, window, cx,
             );
         }
-        Some(EditPredictionProviderConfig::Copilot) => {
-            let ep_store = edit_prediction::EditPredictionStore::global(client, &user_store, cx);
-            let Some(project) = editor.project().cloned() else {
-                return;
-            };
-            let copilot =
-                ep_store.update(cx, |this, cx| this.start_copilot_for_project(&project, cx));
-
-            if let Some(copilot) = copilot {
-                if let Some(buffer) = singleton_buffer {
-                    copilot.update(cx, |copilot, cx| {
-                        copilot.register_buffer(&buffer, cx);
-                    });
-                }
-                let provider = cx.new(|_| CopilotEditPredictionDelegate::new(copilot));
-                editor.set_edit_prediction_provider(Some(provider), trigger, window, cx);
-            }
-        }
+        
         Some(EditPredictionProviderConfig::Codestral) => {
             let http_client = client.http_client();
             let provider = cx.new(|_| CodestralEditPredictionDelegate::new(http_client));
