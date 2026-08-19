@@ -9,7 +9,7 @@ mod extension_store_test;
 use anyhow::{Context as _, Result, anyhow, bail};
 use async_compression::futures::bufread::GzipDecoder;
 use async_tar::Archive;
-use client::{Client, proto, telemetry::Telemetry};
+use client::{Client, proto};
 use cloud_api_types::{ExtensionMetadata, ExtensionProvides, GetExtensionsResponse};
 use collections::{BTreeMap, BTreeSet, FxHashSet, HashMap, HashSet, btree_map};
 pub use extension::ExtensionManifest;

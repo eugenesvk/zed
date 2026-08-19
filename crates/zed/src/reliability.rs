@@ -1,5 +1,5 @@
 use anyhow::{Context as _, Result};
-use client::{Client, telemetry::MINIDUMP_ENDPOINT};
+use client::{Client};
 use feature_flags::FeatureFlagAppExt;
 use futures::{AsyncReadExt, TryStreamExt};
 use gpui::{App, AppContext, Entity, TaskExt};
