@@ -15,7 +15,6 @@ path = "src/edit_prediction.rs"
 cli-support = []
 
 [dependencies]
-ai_onboarding.workspace = true
 anyhow.workspace = true
 heapless.workspace = true
 buffer_diff.workspace = true
@@ -25,8 +24,6 @@ cloud_api_client.workspace = true
 cloud_api_types.workspace = true
 cloud_llm_client = { workspace = true, features = ["predict-edits"] }
 collections.workspace = true
-copilot.workspace = true
-copilot_ui.workspace = true
 credentials_provider.workspace = true
 db.workspace = true
 edit_prediction_types.workspace = true
@@ -57,8 +54,6 @@ serde.workspace = true
 serde_json.workspace = true
 settings.workspace = true
 strum.workspace = true
-telemetry.workspace = true
-telemetry_events.workspace = true
 text.workspace = true
 thiserror.workspace = true
 time.workspace = true
