@@ -165,37 +165,7 @@ impl Settings for ProxySettings {
 
 pub fn init(client: &Arc<Client>, cx: &mut App) {
     let client = Arc::downgrade(client);
-    cx.on_action({
-        let client = client.clone();
-        move |_: &SignIn, cx| {
-            if let Some(client) = client.upgrade() {
-                cx.spawn(async move |cx| client.sign_in_with_optional_connect(true, cx).await)
-                    .detach_and_log_err(cx);
-            }
-        }
-    })
-    .on_action({
-        let client = client.clone();
-        move |_: &SignOut, cx| {
-            if let Some(client) = client.upgrade() {
-                cx.spawn(async move |cx| {
-                    client.sign_out(cx).await;
-                })
-                .detach();
-            }
-        }
-    })
-    .on_action({
-        let client = client;
-        move |_: &Reconnect, cx| {
-            if let Some(client) = client.upgrade() {
-                cx.spawn(async move |cx| {
-                    client.reconnect(cx);
-                })
-                .detach();
-            }
-        }
-    });
+    
 }
 
 pub type MessageToClientHandler = Box<dyn Fn(&MessageToClient, &mut App) + Send + Sync + 'static>;
@@ -963,39 +933,7 @@ impl Client {
         }
     }
 
-    /// Maintains a WebSocket connection with Cloud for receiving updates from the server.
-    ///
-    /// The connection is re-established with exponential backoff if it drops or fails to
-    /// establish.
-    fn connect_to_cloud(self: &Arc<Self>, cx: &AsyncApp) {
-        let this = self.clone();
-        let task = cx.spawn(async move |cx| {
-            #[cfg(any(test, feature = "test-support"))]
-            let mut rng = StdRng::seed_from_u64(0);
-            #[cfg(not(any(test, feature = "test-support")))]
-            let mut rng = StdRng::from_os_rng();
-
-            let mut delay = INITIAL_RECONNECTION_DELAY;
-            loop {
-                match Self::run_cloud_connection(&this, cx).await {
-                    Ok(()) => {
-                        log::info!("cloud websocket disconnected, will reconnect");
-                        delay = INITIAL_RECONNECTION_DELAY;
-                    }
-                    Err(err) => {
-                        log::warn!(
-                            "cloud websocket connect failed: {err:#}; retrying in {delay:?}"
-                        );
-                    }
-                }
-
-                let jitter = Duration::from_millis(rng.random_range(0..delay.as_millis() as u64));
-                cx.background_executor().timer(delay + jitter).await;
-                delay = cmp::min(delay * 2, MAX_RECONNECTION_DELAY);
-            }
-        });
-        self.state.write()._cloud_connection_task = Some(task);
-    }
+                    
 
     /// Runs a single attempt of the cloud websocket connection, returning once the connection
     /// closes (cleanly or otherwise) or fails to establish.
@@ -1016,7 +954,7 @@ impl Client {
 
         while let Some(message) = messages.next().await {
             if let Some(message) = message.log_err() {
-                self.handle_message_to_client(message, cx);
+                
             }
         }
 
@@ -1049,7 +987,7 @@ impl Client {
 
         let credentials = self.sign_in(try_provider, cx).await?;
 
-        self.connect_to_cloud(cx);
+        
 
         cx.update(move |cx| {
             cx.spawn({
@@ -1462,7 +1400,7 @@ impl Client {
                     struct NativeAppSignInQueryParams {
                         native_app_port: u16,
                         native_app_public_key: String,
-                        system_id: Option<Arc<str>>,
+                        
                     }
 
                     // Open the Zed sign-in page in the user's browser, with query parameters that indicate
@@ -1472,7 +1410,7 @@ impl Client {
                         serde_urlencoded::to_string(&NativeAppSignInQueryParams {
                             native_app_port: port,
                             native_app_public_key: public_key,
-                            system_id: this.telemetry.system_id(),
+                            
                         })?
                     ));
 
@@ -1588,90 +1526,13 @@ impl Client {
         })
     }
 
-    pub async fn cached_llm_token(
-        &self,
-        llm_token: &LlmApiToken,
-        organization_id: OrganizationId,
-    ) -> Result<String> {
-        
-        let cloud_client = self.cloud_client();
-        match llm_token
-            .cached(&cloud_client, system_id, organization_id)
-            .await
-        {
-            Ok(token) => Ok(token),
-            Err(ClientApiError::Unauthorized) => {
-                self.request_sign_out();
-                Err(ClientApiError::Unauthorized).context("Failed to create LLM token")
-            }
-            Err(err) => Err(anyhow::Error::from(err)),
-        }
-    }
+    
 
-    /// Sends an authenticated request to the Zed LLM service, retrying once
-    /// with a refreshed token if the server signals that the cached LLM
-    /// token is expired or otherwise rejected. Returns the raw response so
-    /// callers can inspect headers and stream the body.
-    pub async fn authenticated_llm_request(
-        &self,
-        llm_token: &LlmApiToken,
-        organization_id: OrganizationId,
-        build_request: impl Fn(&str) -> Result<http_client::Request<http_client::AsyncBody>>,
-    ) -> Result<http_client::Response<http_client::AsyncBody>> {
-        let http_client = self.http_client();
-        let token = self
-            .cached_llm_token(llm_token, organization_id.clone())
-            .await?;
-        let response = http_client.send(build_request(&token)?).await?;
-        if !response.needs_llm_token_refresh()
-            && response.status() != http_client::http::StatusCode::UNAUTHORIZED
-        {
-            return Ok(response);
-        }
-        log::info!("LLM token rejected; refreshing and retrying request");
-        let token = self.refresh_llm_token(llm_token, organization_id).await?;
-        http_client.send(build_request(&token)?).await
-    }
+                    
 
-    pub async fn refresh_llm_token(
-        &self,
-        llm_token: &LlmApiToken,
-        organization_id: OrganizationId,
-    ) -> Result<String> {
-        
-        let cloud_client = self.cloud_client();
-        match llm_token
-            .refresh(&cloud_client, system_id, organization_id)
-            .await
-        {
-            Ok(token) => Ok(token),
-            Err(ClientApiError::Unauthorized) => {
-                self.request_sign_out();
-                return Err(ClientApiError::Unauthorized).context("Failed to create LLM token");
-            }
-            Err(err) => return Err(anyhow::Error::from(err)),
-        }
-    }
+    
 
-    pub async fn clear_and_refresh_llm_token(
-        &self,
-        llm_token: &LlmApiToken,
-        organization_id: OrganizationId,
-    ) -> Result<String> {
-        
-        let cloud_client = self.cloud_client();
-        match llm_token
-            .clear_and_refresh(&cloud_client, system_id, organization_id)
-            .await
-        {
-            Ok(token) => Ok(token),
-            Err(ClientApiError::Unauthorized) => {
-                self.request_sign_out();
-                return Err(ClientApiError::Unauthorized).context("Failed to create LLM token");
-            }
-            Err(err) => return Err(anyhow::Error::from(err)),
-        }
-    }
+    
 
     pub async fn sign_out(self: &Arc<Self>, cx: &AsyncApp) {
         self.state.write().credentials = None;
@@ -1833,22 +1694,9 @@ impl Client {
         }
     }
 
-    pub fn add_message_to_client_handler(
-        self: &Arc<Client>,
-        handler: impl Fn(&MessageToClient, &mut App) + Send + Sync + 'static,
-    ) {
-        self.message_to_client_handlers
-            .lock()
-            .push(Box::new(handler));
-    }
+    
 
-    fn handle_message_to_client(self: &Arc<Client>, message: MessageToClient, cx: &AsyncApp) {
-        cx.update(|cx| {
-            for handler in self.message_to_client_handlers.lock().iter() {
-                handler(&message, cx);
-            }
-        });
-    }
+    
 
     
 }
