@@ -42,7 +42,7 @@ use workspace::{
 };
 use zed_actions::{OpenBrowser, OpenSettingsAt};
 
-use crate::{RatePredictions, rate_prediction_modal::PredictEditsRatePredictionsFeatureFlag};
+use crate::{RatePredictions};
 
 actions!(
     edit_prediction,

@@ -1,6 +1,6 @@
 mod edit_prediction_button;
 mod edit_prediction_context_view;
-mod rate_prediction_modal;
+
 
 use command_palette_hooks::CommandPaletteFilter;
 use edit_prediction::ResetOnboarding;
@@ -8,7 +8,7 @@ use edit_prediction_context_view::EditPredictionContextView;
 use feature_flags::FeatureFlagAppExt as _;
 use gpui::actions;
 use project::DisableAiSettings;
-use rate_prediction_modal::RatePredictionsModal;
+
 use settings::{Settings as _, SettingsStore};
 use std::any::{Any as _, TypeId};
 use ui::{App, prelude::*};
@@ -18,7 +18,7 @@ pub use edit_prediction_button::{
     EditPredictionButton, ToggleMenu, get_available_providers, set_completion_provider,
 };
 
-use crate::rate_prediction_modal::PredictEditsRatePredictionsFeatureFlag;
+
 
 actions!(
     dev,
