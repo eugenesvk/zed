@@ -77,7 +77,7 @@ pub mod data_collection;
 pub mod example_spec;
 pub mod fim;
 mod license_detection;
-pub mod mercury;
+
 pub mod metrics;
 pub mod ollama;
 mod onboarding_modal;
@@ -98,7 +98,7 @@ use crate::cursor_excerpt::expand_context_syntactically_then_linewise;
 use crate::data_collection::{CapturedPredictionContext, capture_prediction_context};
 use crate::example_spec::RecentFile;
 use crate::license_detection::LicenseDetectionWatcher;
-use crate::mercury::Mercury;
+
 pub use crate::metrics::{KeptRateResult, compute_kept_rate};
 use crate::onboarding_modal::ZedPredictModal;
 use crate::prediction::EditPredictionResult;
