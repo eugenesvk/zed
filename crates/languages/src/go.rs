@@ -73,35 +73,7 @@ impl LspInstaller for GoLspAdapter {
         _: bool,
         cx: &mut AsyncApp,
     ) -> Result<Option<String>> {
-        static DID_SHOW_NOTIFICATION: AtomicBool = AtomicBool::new(false);
-
-        const NOTIFICATION_MESSAGE: &str =
-            "Could not install the Go language server `gopls`, because `go` was not found.";
-
-        if delegate.which("go".as_ref()).await.is_none() {
-            if DID_SHOW_NOTIFICATION
-                .compare_exchange(false, true, SeqCst, SeqCst)
-                .is_ok()
-            {
-                cx.update(|cx| {
-                    delegate.show_notification(NOTIFICATION_MESSAGE, cx);
-                });
-            }
-            anyhow::bail!(
-                "Could not install the Go language server `gopls`, because `go` was not found."
-            );
-        }
-
-        let release =
-            latest_github_release("golang/tools", false, false, delegate.http_client()).await?;
-        let version: Option<String> = release.tag_name.strip_prefix("gopls/v").map(str::to_string);
-        if version.is_none() {
-            log::warn!(
-                "couldn't infer gopls version from GitHub release tag name '{}'",
-                release.tag_name
-            );
-        }
-        Ok(version)
+        Err(anyhow::anyhow!("zedless: function fetch_latest_server_version has been disabled"))
     }
 
     async fn check_if_user_installed(
@@ -124,82 +96,14 @@ impl LspInstaller for GoLspAdapter {
         container_dir: PathBuf,
         delegate: &Arc<dyn LspAdapterDelegate>,
     ) -> impl Send + Future<Output = Result<LanguageServerBinary>> + use<> {
-        let delegate = delegate.clone();
-
-        async move {
-            let go = delegate.which("go".as_ref()).await.unwrap_or("go".into());
-            let go_version_output = util::command::new_command(&go)
-                .args(["version"])
-                .output()
-                .await
-                .context("failed to get go version via `go version` command`")?;
-            let go_version = parse_version_output(&go_version_output)?;
-
-            if let Some(version) = version {
-                let binary_path = container_dir.join(format!("gopls_{version}_go_{go_version}"));
-                if let Ok(metadata) = fs::metadata(&binary_path).await
-                    && metadata.is_file()
-                {
-                    remove_matching(&container_dir, |entry| {
-                        entry != binary_path && entry.file_name() != Some(OsStr::new("gobin"))
-                    })
-                    .await;
-
-                    return Ok(LanguageServerBinary {
-                        path: binary_path.to_path_buf(),
-                        arguments: server_binary_arguments(),
-                        env: None,
-                    });
-                }
-            } else if let Some(path) = get_cached_server_binary(&container_dir).await {
-                return Ok(path);
-            }
-
-            let gobin_dir = container_dir.join("gobin");
-            fs::create_dir_all(&gobin_dir).await?;
-            let install_output = util::command::new_command(go)
-                .env("GO111MODULE", "on")
-                .env("GOBIN", &gobin_dir)
-                .args(["install", "golang.org/x/tools/gopls@latest"])
-                .output()
-                .await?;
-
-            if !install_output.status.success() {
-                log::error!(
-                    "failed to install gopls via `go install`. stdout: {:?}, stderr: {:?}",
-                    String::from_utf8_lossy(&install_output.stdout),
-                    String::from_utf8_lossy(&install_output.stderr)
-                );
-                anyhow::bail!(
-                    "failed to install gopls with `go install`. Is `go` installed and in the PATH? Check logs for more information."
-                );
-            }
-
-            let installed_binary_path = gobin_dir.join(BINARY);
-            let version_output = util::command::new_command(&installed_binary_path)
-                .arg("version")
-                .output()
-                .await
-                .context("failed to run installed gopls binary")?;
-            let gopls_version = parse_version_output(&version_output)?;
-            let binary_path = container_dir.join(format!("gopls_{gopls_version}_go_{go_version}"));
-            fs::rename(&installed_binary_path, &binary_path).await?;
-
-            Ok(LanguageServerBinary {
-                path: binary_path.to_path_buf(),
-                arguments: server_binary_arguments(),
-                env: None,
-            })
-        }
+        async move { Err(anyhow::anyhow!("zedless: function fetch_server_binary has been disabled")) }
     }
 
     async fn cached_server_binary(
         &self,
         container_dir: PathBuf,
         _: &dyn LspAdapterDelegate,
-    ) -> Option<LanguageServerBinary> {
-        get_cached_server_binary(&container_dir).await
-    }
+    ) -> Option<LanguageServerBinary> { None }
 }
 
 #[async_trait(?Send)]
@@ -546,32 +450,7 @@ fn parse_version_output(output: &Output) -> Result<&str> {
     Ok(version)
 }
 
-async fn get_cached_server_binary(container_dir: &Path) -> Option<LanguageServerBinary> {
-    maybe!(async {
-        let mut last_binary_path = None;
-        let mut entries = fs::read_dir(container_dir).await?;
-        while let Some(entry) = entries.next().await {
-            let entry = entry?;
-            if entry.file_type().await?.is_file()
-                && entry
-                    .file_name()
-                    .to_str()
-                    .is_some_and(|name| name.starts_with("gopls_"))
-            {
-                last_binary_path = Some(entry.path());
-            }
-        }
 
-        let path = last_binary_path.context("no cached binary")?;
-        anyhow::Ok(LanguageServerBinary {
-            path,
-            arguments: server_binary_arguments(),
-            env: None,
-        })
-    })
-    .await
-    .log_err()
-}
 
 fn adjust_runs(
     delta: usize,

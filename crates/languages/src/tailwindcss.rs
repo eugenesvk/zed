@@ -45,9 +45,7 @@ impl LspInstaller for TailwindCssLspAdapter {
         _: bool,
         _: &mut AsyncApp,
     ) -> Result<Self::BinaryVersion> {
-        self.node
-            .npm_package_latest_version(Self::PACKAGE_NAME)
-            .await
+        Err(anyhow::anyhow!("zedless: function fetch_latest_server_version has been disabled"))
     }
 
     async fn check_if_user_installed(
@@ -72,20 +70,7 @@ impl LspInstaller for TailwindCssLspAdapter {
         container_dir: PathBuf,
         _: &Arc<dyn LspAdapterDelegate>,
     ) -> impl Send + Future<Output = Result<LanguageServerBinary>> + use<> {
-        let node = self.node.clone();
-
-        async move {
-            let server_path = container_dir.join(SERVER_PATH);
-
-            node.npm_install_latest_packages(&container_dir, &[Self::PACKAGE_NAME])
-                .await?;
-
-            Ok(LanguageServerBinary {
-                path: node.binary_path().await?,
-                env: None,
-                arguments: server_binary_arguments(&server_path),
-            })
-        }
+        async move { Err(anyhow::anyhow!("zedless: function fetch_server_binary has been disabled")) }
     }
 
     fn check_if_version_installed(
@@ -126,9 +111,7 @@ impl LspInstaller for TailwindCssLspAdapter {
         &self,
         container_dir: PathBuf,
         _: &dyn LspAdapterDelegate,
-    ) -> Option<LanguageServerBinary> {
-        get_cached_server_binary(container_dir, &self.node).await
-    }
+    ) -> Option<LanguageServerBinary> { None }
 }
 
 #[async_trait(?Send)]
@@ -179,22 +162,4 @@ impl LspAdapter for TailwindCssLspAdapter {
     }
 }
 
-async fn get_cached_server_binary(
-    container_dir: PathBuf,
-    node: &NodeRuntime,
-) -> Option<LanguageServerBinary> {
-    maybe!(async {
-        let server_path = container_dir.join(SERVER_PATH);
-        anyhow::ensure!(
-            server_path.exists(),
-            "missing executable in directory {server_path:?}"
-        );
-        Ok(LanguageServerBinary {
-            path: node.binary_path().await?,
-            env: None,
-            arguments: server_binary_arguments(&server_path),
-        })
-    })
-    .await
-    .log_err()
-}
+

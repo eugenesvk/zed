@@ -404,19 +404,7 @@ impl LspInstaller for TyLspAdapter {
         _: bool,
         _: &mut AsyncApp,
     ) -> Result<Self::BinaryVersion> {
-        let release =
-            latest_github_release("astral-sh/ty", true, false, delegate.http_client()).await?;
-        let (_, asset_name) = Self::build_asset_name()?;
-        let asset = release
-            .assets
-            .into_iter()
-            .find(|asset| asset.name == asset_name)
-            .with_context(|| format!("no asset found matching `{asset_name:?}`"))?;
-        Ok(GitHubLspBinaryVersion {
-            name: release.tag_name,
-            url: asset.browser_download_url,
-            digest: asset.digest,
-        })
+        Err(anyhow::anyhow!("zedless: function fetch_latest_server_version has been disabled"))
     }
 
     async fn check_if_user_installed(
@@ -455,127 +443,14 @@ impl LspInstaller for TyLspAdapter {
         container_dir: PathBuf,
         delegate: &Arc<dyn LspAdapterDelegate>,
     ) -> impl Send + Future<Output = Result<LanguageServerBinary>> + use<> {
-        let delegate = delegate.clone();
-
-        async move {
-            let GitHubLspBinaryVersion {
-                name,
-                url,
-                digest: expected_digest,
-            } = latest_version;
-            let destination_path = container_dir.join(format!("ty-{name}"));
-
-            async_fs::create_dir_all(&destination_path).await?;
-
-            let server_path = match Self::GITHUB_ASSET_KIND {
-                AssetKind::TarGz | AssetKind::TarBz2 | AssetKind::Gz => destination_path
-                    .join(Self::build_asset_name()?.0)
-                    .join("ty"),
-                AssetKind::Zip => destination_path.clone().join("ty.exe"),
-            };
-
-            let binary = LanguageServerBinary {
-                path: server_path.clone(),
-                env: None,
-                arguments: vec!["server".into()],
-            };
-
-            let metadata_path = destination_path.with_extension("metadata");
-            let metadata = GithubBinaryMetadata::read_from_file(&metadata_path)
-                .await
-                .ok();
-            if let Some(metadata) = metadata {
-                let validity_check = async || {
-                    delegate
-                        .try_exec(LanguageServerBinary {
-                            path: server_path.clone(),
-                            arguments: vec!["--version".into()],
-                            env: None,
-                        })
-                        .await
-                        .inspect_err(|err| {
-                            log::warn!(
-                                "Unable to run {server_path:?} asset, redownloading: {err:#}",
-                            )
-                        })
-                };
-                if let (Some(actual_digest), Some(expected_digest)) =
-                    (&metadata.digest, &expected_digest)
-                {
-                    if actual_digest == expected_digest {
-                        if validity_check().await.is_ok() {
-                            return Ok(binary);
-                        }
-                    } else {
-                        log::info!(
-                            "SHA-256 mismatch for {destination_path:?} asset, downloading new asset. Expected: {expected_digest}, Got: {actual_digest}"
-                        );
-                    }
-                } else if validity_check().await.is_ok() {
-                    return Ok(binary);
-                }
-            }
-
-            download_server_binary(
-                &*delegate.http_client(),
-                &url,
-                expected_digest.as_deref(),
-                &destination_path,
-                Self::GITHUB_ASSET_KIND,
-            )
-            .await?;
-            make_file_executable(&server_path).await?;
-            remove_matching(&container_dir, |path| path != destination_path).await;
-            GithubBinaryMetadata::write_to_file(
-                &GithubBinaryMetadata {
-                    metadata_version: 1,
-                    digest: expected_digest,
-                },
-                &metadata_path,
-            )
-            .await?;
-
-            Ok(LanguageServerBinary {
-                path: server_path,
-                env: None,
-                arguments: vec!["server".into()],
-            })
-        }
+        async move { Err(anyhow::anyhow!("zedless: function fetch_server_binary has been disabled")) }
     }
 
     async fn cached_server_binary(
         &self,
         container_dir: PathBuf,
         _: &dyn LspAdapterDelegate,
-    ) -> Option<LanguageServerBinary> {
-        maybe!(async {
-            let mut last = None;
-            let mut entries = self.fs.read_dir(&container_dir).await?;
-            while let Some(entry) = entries.next().await {
-                let path = entry?;
-                if path.extension().is_some_and(|ext| ext == "metadata") {
-                    continue;
-                }
-                last = Some(path);
-            }
-
-            let path = last.context("no cached binary")?;
-            let path = match TyLspAdapter::GITHUB_ASSET_KIND {
-                AssetKind::TarGz | AssetKind::TarBz2 | AssetKind::Gz => {
-                    path.join(Self::build_asset_name()?.0).join("ty")
-                }
-                AssetKind::Zip => path.join("ty.exe"),
-            };
-
-            anyhow::Ok(LanguageServerBinary {
-                path,
-                env: None,
-                arguments: vec!["server".into()],
-            })
-        })
-        .await
-        .log_err()
-    }
+    ) -> Option<LanguageServerBinary> { None }
 }
 
 pub struct PyrightLspAdapter {
@@ -591,22 +466,7 @@ impl PyrightLspAdapter {
         PyrightLspAdapter { node }
     }
 
-    async fn get_cached_server_binary(
-        container_dir: PathBuf,
-        node: &NodeRuntime,
-    ) -> Option<LanguageServerBinary> {
-        let server_path = container_dir.join(Self::SERVER_PATH);
-        if server_path.exists() {
-            Some(LanguageServerBinary {
-                path: node.binary_path().await.log_err()?,
-                env: None,
-                arguments: vec![server_path.into(), "--stdio".into()],
-            })
-        } else {
-            log::error!("missing executable in directory {:?}", server_path);
-            None
-        }
-    }
+    
 }
 
 #[async_trait(?Send)]
@@ -749,9 +609,7 @@ impl LspInstaller for PyrightLspAdapter {
         _: bool,
         _: &mut AsyncApp,
     ) -> Result<Self::BinaryVersion> {
-        self.node
-            .npm_package_latest_version(Self::SERVER_NAME.as_ref())
-            .await
+        Err(anyhow::anyhow!("zedless: function fetch_latest_server_version has been disabled"))
     }
 
     async fn check_if_user_installed(
@@ -791,21 +649,7 @@ impl LspInstaller for PyrightLspAdapter {
         container_dir: PathBuf,
         delegate: &Arc<dyn LspAdapterDelegate>,
     ) -> impl Send + Future<Output = Result<LanguageServerBinary>> + use<> {
-        let delegate = delegate.clone();
-        let node = self.node.clone();
-
-        async move {
-            let server_path = container_dir.join(Self::SERVER_PATH);
-            node.npm_install_latest_packages(&container_dir, &[Self::SERVER_NAME.as_ref()])
-                .await?;
-
-            let env = delegate.shell_env().await;
-            Ok(LanguageServerBinary {
-                path: node.binary_path().await?,
-                env: Some(env),
-                arguments: vec![server_path.into(), "--stdio".into()],
-            })
-        }
+        async move { Err(anyhow::anyhow!("zedless: function fetch_server_binary has been disabled")) }
     }
 
     fn check_if_version_installed(
@@ -848,11 +692,7 @@ impl LspInstaller for PyrightLspAdapter {
         &self,
         container_dir: PathBuf,
         delegate: &dyn LspAdapterDelegate,
-    ) -> Option<LanguageServerBinary> {
-        let mut binary = Self::get_cached_server_binary(container_dir, &self.node).await?;
-        binary.env = Some(delegate.shell_env().await);
-        Some(binary)
-    }
+    ) -> Option<LanguageServerBinary> { None }
 }
 
 pub(crate) struct PythonContextProvider;
@@ -1959,7 +1799,7 @@ impl LspInstaller for PyLspAdapter {
         _: bool,
         _: &mut AsyncApp,
     ) -> Result<()> {
-        Ok(())
+        Err(anyhow::anyhow!("zedless: function fetch_latest_server_version has been disabled"))
     }
 
     fn fetch_server_binary(
@@ -1968,60 +1808,14 @@ impl LspInstaller for PyLspAdapter {
         _: PathBuf,
         delegate: &Arc<dyn LspAdapterDelegate>,
     ) -> impl Send + Future<Output = Result<LanguageServerBinary>> + use<> {
-        let delegate = delegate.clone();
-
-        async move {
-            let venv = Self::ensure_venv(delegate.as_ref()).await?;
-            let pip_path = venv.join(BINARY_DIR).join("pip3");
-            ensure!(
-                util::command::new_command(pip_path.as_path())
-                    .arg("install")
-                    .arg("python-lsp-server[all]")
-                    .arg("--upgrade")
-                    .output()
-                    .await?
-                    .status
-                    .success(),
-                "python-lsp-server[all] installation failed"
-            );
-            ensure!(
-                util::command::new_command(pip_path)
-                    .arg("install")
-                    .arg("pylsp-mypy")
-                    .arg("--upgrade")
-                    .output()
-                    .await?
-                    .status
-                    .success(),
-                "pylsp-mypy installation failed"
-            );
-            let pylsp = venv.join(BINARY_DIR).join("pylsp");
-            ensure!(
-                delegate.which(pylsp.as_os_str()).await.is_some(),
-                "pylsp installation was incomplete"
-            );
-            Ok(LanguageServerBinary {
-                path: pylsp,
-                env: None,
-                arguments: vec![],
-            })
-        }
+        async move { Err(anyhow::anyhow!("zedless: function fetch_server_binary has been disabled")) }
     }
 
     async fn cached_server_binary(
         &self,
         _: PathBuf,
         delegate: &dyn LspAdapterDelegate,
-    ) -> Option<LanguageServerBinary> {
-        let venv = self.base_venv(delegate).await.ok()?;
-        let pylsp = venv.join(BINARY_DIR).join("pylsp");
-        delegate.which(pylsp.as_os_str()).await?;
-        Some(LanguageServerBinary {
-            path: pylsp,
-            env: None,
-            arguments: vec![],
-        })
-    }
+    ) -> Option<LanguageServerBinary> { None }
 }
 
 pub(crate) struct BasedPyrightLspAdapter {
@@ -2038,22 +1832,7 @@ impl BasedPyrightLspAdapter {
         BasedPyrightLspAdapter { node }
     }
 
-    async fn get_cached_server_binary(
-        container_dir: PathBuf,
-        node: &NodeRuntime,
-    ) -> Option<LanguageServerBinary> {
-        let server_path = container_dir.join(Self::SERVER_PATH);
-        if server_path.exists() {
-            Some(LanguageServerBinary {
-                path: node.binary_path().await.log_err()?,
-                env: None,
-                arguments: vec![server_path.into(), "--stdio".into()],
-            })
-        } else {
-            log::error!("missing executable in directory {:?}", server_path);
-            None
-        }
-    }
+    
 }
 
 #[async_trait(?Send)]
@@ -2209,9 +1988,7 @@ impl LspInstaller for BasedPyrightLspAdapter {
         _: bool,
         _: &mut AsyncApp,
     ) -> Result<Self::BinaryVersion> {
-        self.node
-            .npm_package_latest_version(Self::SERVER_NAME.as_ref())
-            .await
+        Err(anyhow::anyhow!("zedless: function fetch_latest_server_version has been disabled"))
     }
 
     async fn check_if_user_installed(
@@ -2252,21 +2029,7 @@ impl LspInstaller for BasedPyrightLspAdapter {
         container_dir: PathBuf,
         delegate: &Arc<dyn LspAdapterDelegate>,
     ) -> impl Send + Future<Output = Result<LanguageServerBinary>> + use<> {
-        let delegate = delegate.clone();
-        let node = self.node.clone();
-
-        async move {
-            let server_path = container_dir.join(Self::SERVER_PATH);
-            node.npm_install_latest_packages(&container_dir, &[Self::SERVER_NAME.as_ref()])
-                .await?;
-
-            let env = delegate.shell_env().await;
-            Ok(LanguageServerBinary {
-                path: node.binary_path().await?,
-                env: Some(env),
-                arguments: vec![server_path.into(), "--stdio".into()],
-            })
-        }
+        async move { Err(anyhow::anyhow!("zedless: function fetch_server_binary has been disabled")) }
     }
 
     fn check_if_version_installed(
@@ -2309,11 +2072,7 @@ impl LspInstaller for BasedPyrightLspAdapter {
         &self,
         container_dir: PathBuf,
         delegate: &dyn LspAdapterDelegate,
-    ) -> Option<LanguageServerBinary> {
-        let mut binary = Self::get_cached_server_binary(container_dir, &self.node).await?;
-        binary.env = Some(delegate.shell_env().await);
-        Some(binary)
-    }
+    ) -> Option<LanguageServerBinary> { None }
 }
 
 pub(crate) struct RuffLspAdapter {
@@ -2573,19 +2332,7 @@ impl LspInstaller for RuffLspAdapter {
         _: bool,
         _: &mut AsyncApp,
     ) -> Result<GitHubLspBinaryVersion> {
-        let release =
-            latest_github_release("astral-sh/ruff", true, false, delegate.http_client()).await?;
-        let (_, asset_name) = Self::build_asset_name()?;
-        let asset = release
-            .assets
-            .into_iter()
-            .find(|asset| asset.name == asset_name)
-            .with_context(|| format!("no asset found matching `{asset_name:?}`"))?;
-        Ok(GitHubLspBinaryVersion {
-            name: release.tag_name,
-            url: asset.browser_download_url,
-            digest: asset.digest,
-        })
+        Err(anyhow::anyhow!("zedless: function fetch_latest_server_version has been disabled"))
     }
 
     fn fetch_server_binary(
@@ -2594,124 +2341,14 @@ impl LspInstaller for RuffLspAdapter {
         container_dir: PathBuf,
         delegate: &Arc<dyn LspAdapterDelegate>,
     ) -> impl Send + Future<Output = Result<LanguageServerBinary>> + use<> {
-        let delegate = delegate.clone();
-
-        async move {
-            let GitHubLspBinaryVersion {
-                name,
-                url,
-                digest: expected_digest,
-            } = latest_version;
-            let destination_path = container_dir.join(format!("ruff-{name}"));
-            let server_path = match Self::GITHUB_ASSET_KIND {
-                AssetKind::TarGz | AssetKind::TarBz2 | AssetKind::Gz => destination_path
-                    .join(Self::build_asset_name()?.0)
-                    .join("ruff"),
-                AssetKind::Zip => destination_path.clone().join("ruff.exe"),
-            };
-
-            let binary = LanguageServerBinary {
-                path: server_path.clone(),
-                env: None,
-                arguments: vec!["server".into()],
-            };
-
-            let metadata_path = destination_path.with_extension("metadata");
-            let metadata = GithubBinaryMetadata::read_from_file(&metadata_path)
-                .await
-                .ok();
-            if let Some(metadata) = metadata {
-                let validity_check = async || {
-                    delegate
-                        .try_exec(LanguageServerBinary {
-                            path: server_path.clone(),
-                            arguments: vec!["--version".into()],
-                            env: None,
-                        })
-                        .await
-                        .inspect_err(|err| {
-                            log::warn!(
-                                "Unable to run {server_path:?} asset, redownloading: {err:#}",
-                            )
-                        })
-                };
-                if let (Some(actual_digest), Some(expected_digest)) =
-                    (&metadata.digest, &expected_digest)
-                {
-                    if actual_digest == expected_digest {
-                        if validity_check().await.is_ok() {
-                            return Ok(binary);
-                        }
-                    } else {
-                        log::info!(
-                            "SHA-256 mismatch for {destination_path:?} asset, downloading new asset. Expected: {expected_digest}, Got: {actual_digest}"
-                        );
-                    }
-                } else if validity_check().await.is_ok() {
-                    return Ok(binary);
-                }
-            }
-
-            download_server_binary(
-                &*delegate.http_client(),
-                &url,
-                expected_digest.as_deref(),
-                &destination_path,
-                Self::GITHUB_ASSET_KIND,
-            )
-            .await?;
-            make_file_executable(&server_path).await?;
-            remove_matching(&container_dir, |path| path != destination_path).await;
-            GithubBinaryMetadata::write_to_file(
-                &GithubBinaryMetadata {
-                    metadata_version: 1,
-                    digest: expected_digest,
-                },
-                &metadata_path,
-            )
-            .await?;
-
-            Ok(LanguageServerBinary {
-                path: server_path,
-                env: None,
-                arguments: vec!["server".into()],
-            })
-        }
+        async move { Err(anyhow::anyhow!("zedless: function fetch_server_binary has been disabled")) }
     }
 
     async fn cached_server_binary(
         &self,
         container_dir: PathBuf,
         _: &dyn LspAdapterDelegate,
-    ) -> Option<LanguageServerBinary> {
-        maybe!(async {
-            let mut last = None;
-            let mut entries = self.fs.read_dir(&container_dir).await?;
-            while let Some(entry) = entries.next().await {
-                let path = entry?;
-                if path.extension().is_some_and(|ext| ext == "metadata") {
-                    continue;
-                }
-                last = Some(path);
-            }
-
-            let path = last.context("no cached binary")?;
-            let path = match Self::GITHUB_ASSET_KIND {
-                AssetKind::TarGz | AssetKind::TarBz2 | AssetKind::Gz => {
-                    path.join(Self::build_asset_name()?.0).join("ruff")
-                }
-                AssetKind::Zip => path.join("ruff.exe"),
-            };
-
-            anyhow::Ok(LanguageServerBinary {
-                path,
-                env: None,
-                arguments: vec!["server".into()],
-            })
-        })
-        .await
-        .log_err()
-    }
+    ) -> Option<LanguageServerBinary> { None }
 }
 
 #[cfg(test)]

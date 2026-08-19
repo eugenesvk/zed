@@ -805,24 +805,7 @@ impl LspInstaller for RustLspAdapter {
         pre_release: bool,
         _: &mut AsyncApp,
     ) -> Result<GitHubLspBinaryVersion> {
-        let release = latest_github_release(
-            "rust-lang/rust-analyzer",
-            true,
-            pre_release,
-            delegate.http_client(),
-        )
-        .await?;
-        let asset_name = Self::build_asset_name().await;
-        let asset = release
-            .assets
-            .into_iter()
-            .find(|asset| asset.name == asset_name)
-            .with_context(|| format!("no asset found matching `{asset_name:?}`"))?;
-        Ok(GitHubLspBinaryVersion {
-            name: release.tag_name,
-            url: asset.browser_download_url,
-            digest: asset.digest,
-        })
+        Err(anyhow::anyhow!("zedless: function fetch_latest_server_version has been disabled"))
     }
 
     fn fetch_server_binary(
@@ -831,96 +814,14 @@ impl LspInstaller for RustLspAdapter {
         container_dir: PathBuf,
         delegate: &Arc<dyn LspAdapterDelegate>,
     ) -> impl Send + Future<Output = Result<LanguageServerBinary>> + use<> {
-        let delegate = delegate.clone();
-
-        async move {
-            let GitHubLspBinaryVersion {
-                name,
-                url,
-                digest: expected_digest,
-            } = version;
-            let destination_path = container_dir.join(format!("rust-analyzer-{name}"));
-            let server_path = match Self::GITHUB_ASSET_KIND {
-                AssetKind::TarGz | AssetKind::TarBz2 | AssetKind::Gz => destination_path.clone(), // Tar and gzip extract in place.
-                AssetKind::Zip => destination_path.clone().join("rust-analyzer.exe"), // zip contains a .exe
-            };
-
-            let binary = LanguageServerBinary {
-                path: server_path.clone(),
-                env: None,
-                arguments: Default::default(),
-            };
-
-            let metadata_path = destination_path.with_extension("metadata");
-            let metadata = GithubBinaryMetadata::read_from_file(&metadata_path)
-                .await
-                .ok();
-            if let Some(metadata) = metadata {
-                let validity_check = async || {
-                    delegate
-                        .try_exec(LanguageServerBinary {
-                            path: server_path.clone(),
-                            arguments: vec!["--version".into()],
-                            env: None,
-                        })
-                        .await
-                        .inspect_err(|err| {
-                            log::warn!(
-                                "Unable to run {server_path:?} asset, redownloading: {err:#}",
-                            )
-                        })
-                };
-                if let (Some(actual_digest), Some(expected_digest)) =
-                    (&metadata.digest, &expected_digest)
-                {
-                    if actual_digest == expected_digest {
-                        if validity_check().await.is_ok() {
-                            return Ok(binary);
-                        }
-                    } else {
-                        log::info!(
-                            "SHA-256 mismatch for {destination_path:?} asset, downloading new asset. Expected: {expected_digest}, Got: {actual_digest}"
-                        );
-                    }
-                } else if validity_check().await.is_ok() {
-                    return Ok(binary);
-                }
-            }
-
-            download_server_binary(
-                &*delegate.http_client(),
-                &url,
-                expected_digest.as_deref(),
-                &destination_path,
-                Self::GITHUB_ASSET_KIND,
-            )
-            .await?;
-            make_file_executable(&server_path).await?;
-            remove_matching(&container_dir, |path| path != destination_path).await;
-            GithubBinaryMetadata::write_to_file(
-                &GithubBinaryMetadata {
-                    metadata_version: 1,
-                    digest: expected_digest,
-                },
-                &metadata_path,
-            )
-            .await?;
-
-            Ok(LanguageServerBinary {
-                path: server_path,
-                env: None,
-                arguments: Default::default(),
-            })
-        }
+        async move { Err(anyhow::anyhow!("zedless: function fetch_server_binary has been disabled")) }
     }
 
     async fn cached_server_binary(
         &self,
         container_dir: PathBuf,
         _: &dyn LspAdapterDelegate,
-    ) -> Option<LanguageServerBinary> {
-        get_cached_server_binary(container_dir).await
-    }
+    ) -> Option<LanguageServerBinary> { None }
 }
 
 pub(crate) struct RustContextProvider;
@@ -1399,49 +1300,7 @@ fn package_name_from_pkgid(pkgid: &str) -> Option<&str> {
     Some(package_name)
 }
 
-async fn get_cached_server_binary(container_dir: PathBuf) -> Option<LanguageServerBinary> {
-    let binary_result = maybe!(async {
-        let mut last = None;
-        let mut entries = fs::read_dir(&container_dir)
-            .await
-            .with_context(|| format!("listing {container_dir:?}"))?;
-        while let Some(entry) = entries.next().await {
-            let path = entry?.path();
-            if path.extension().is_some_and(|ext| ext == "metadata") {
-                continue;
-            }
-            last = Some(path);
-        }
 
-        let path = match last {
-            Some(last) => last,
-            None => return Ok(None),
-        };
-        let path = match RustLspAdapter::GITHUB_ASSET_KIND {
-            AssetKind::TarGz | AssetKind::TarBz2 | AssetKind::Gz => path, // Tar and gzip extract in place.
-            AssetKind::Zip => path.join("rust-analyzer.exe"),             // zip contains a .exe
-        };
-
-        anyhow::Ok(Some(LanguageServerBinary {
-            path,
-            env: None,
-            arguments: Vec::new(),
-        }))
-    })
-    .await;
-
-    match binary_result {
-        Ok(Some(binary)) => Some(binary),
-        Ok(None) => {
-            log::info!("No cached rust-analyzer binary found");
-            None
-        }
-        Err(e) => {
-            log::error!("Failed to look up cached rust-analyzer binary: {e:#}");
-            None
-        }
-    }
-}
 
 fn test_fragment(variables: &TaskVariables, path: &Path, stem: &str) -> String {
     let fragment = if stem == "lib" {

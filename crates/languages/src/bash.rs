@@ -38,28 +38,7 @@ impl BashLspAdapter {
         Self { node }
     }
 
-    async fn get_cached_server_binary(
-        container_dir: PathBuf,
-        env: HashMap<String, String>,
-        node: &NodeRuntime,
-    ) -> Option<lsp::LanguageServerBinary> {
-        maybe!(async {
-            let server_path = container_dir
-                .join("node_modules")
-                .join(Self::NODE_MODULE_RELATIVE_SERVER_PATH);
-            anyhow::ensure!(
-                server_path.exists(),
-                "missing executable in directory {server_path:?}"
-            );
-            Ok(LanguageServerBinary {
-                path: node.binary_path().await?,
-                env: Some(env),
-                arguments: vec![server_path.into(), "start".into()],
-            })
-        })
-        .await
-        .log_err()
-    }
+    
 }
 
 impl LspInstaller for BashLspAdapter {
@@ -69,10 +48,7 @@ impl LspInstaller for BashLspAdapter {
         &self,
         container_dir: std::path::PathBuf,
         delegate: &dyn LspAdapterDelegate,
-    ) -> Option<lsp::LanguageServerBinary> {
-        let env = delegate.shell_env().await;
-        Self::get_cached_server_binary(container_dir, env, &self.node).await
-    }
+    ) -> Option<lsp::LanguageServerBinary> { None }
 
     async fn check_if_user_installed(
         &self,
@@ -134,9 +110,7 @@ impl LspInstaller for BashLspAdapter {
         _: bool,
         _: &mut gpui::AsyncApp,
     ) -> Result<Self::BinaryVersion> {
-        self.node
-            .npm_package_latest_version(Self::PACKAGE_NAME)
-            .await
+        Err(anyhow::anyhow!("zedless: function fetch_latest_server_version has been disabled"))
     }
 
     fn fetch_server_binary(
@@ -145,24 +119,7 @@ impl LspInstaller for BashLspAdapter {
         container_dir: std::path::PathBuf,
         delegate: &Arc<dyn LspAdapterDelegate>,
     ) -> impl Send + Future<Output = Result<lsp::LanguageServerBinary>> + use<> {
-        let node = self.node.clone();
-        let delegate = delegate.clone();
-
-        async move {
-            let server_path = container_dir
-                .join("node_modules")
-                .join(Self::NODE_MODULE_RELATIVE_SERVER_PATH);
-
-            node.npm_install_latest_packages(&container_dir, &[Self::PACKAGE_NAME])
-                .await?;
-
-            let env = delegate.shell_env().await;
-            Ok(LanguageServerBinary {
-                path: node.binary_path().await?,
-                env: Some(env),
-                arguments: vec![server_path.into(), "start".into()],
-            })
-        }
+        async move { Err(anyhow::anyhow!("zedless: function fetch_server_binary has been disabled")) }
     }
 }
 

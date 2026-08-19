@@ -670,19 +670,7 @@ impl LspInstaller for TypeScriptLspAdapter {
         _: bool,
         _: &mut AsyncApp,
     ) -> Result<Self::BinaryVersion> {
-        Ok(TypeScriptVersions {
-            typescript_version: self
-                .node
-                .npm_package_latest_version_with_requirement(
-                    Self::PACKAGE_NAME,
-                    Some(&TYPESCRIPT_VERSION_REQ),
-                )
-                .await?,
-            server_version: self
-                .node
-                .npm_package_latest_version(Self::SERVER_PACKAGE_NAME)
-                .await?,
-        })
+        Err(anyhow::anyhow!("zedless: function fetch_latest_server_version has been disabled"))
     }
 
     fn check_if_version_installed(
@@ -738,36 +726,14 @@ impl LspInstaller for TypeScriptLspAdapter {
         container_dir: PathBuf,
         _: &Arc<dyn LspAdapterDelegate>,
     ) -> impl Send + Future<Output = Result<LanguageServerBinary>> + use<> {
-        let node = self.node.clone();
-
-        async move {
-            let server_path = container_dir.join(Self::NEW_SERVER_PATH);
-            let typescript_version = latest_version.typescript_version.to_string();
-
-            node.npm_install_packages(
-                &container_dir,
-                &[
-                    (Self::PACKAGE_NAME, typescript_version.as_str()),
-                    (Self::SERVER_PACKAGE_NAME, "latest"),
-                ],
-            )
-            .await?;
-
-            Ok(LanguageServerBinary {
-                path: node.binary_path().await?,
-                env: None,
-                arguments: typescript_server_binary_arguments(&server_path),
-            })
-        }
+        async move { Err(anyhow::anyhow!("zedless: function fetch_server_binary has been disabled")) }
     }
 
     async fn cached_server_binary(
         &self,
         container_dir: PathBuf,
         _: &dyn LspAdapterDelegate,
-    ) -> Option<LanguageServerBinary> {
-        get_cached_ts_server_binary(container_dir, &self.node).await
-    }
+    ) -> Option<LanguageServerBinary> { None }
 }
 
 #[async_trait(?Send)]
@@ -877,32 +843,7 @@ impl LspAdapter for TypeScriptLspAdapter {
     }
 }
 
-async fn get_cached_ts_server_binary(
-    container_dir: PathBuf,
-    node: &NodeRuntime,
-) -> Option<LanguageServerBinary> {
-    maybe!(async {
-        let old_server_path = container_dir.join(TypeScriptLspAdapter::OLD_SERVER_PATH);
-        let new_server_path = container_dir.join(TypeScriptLspAdapter::NEW_SERVER_PATH);
-        if new_server_path.exists() {
-            Ok(LanguageServerBinary {
-                path: node.binary_path().await?,
-                env: None,
-                arguments: typescript_server_binary_arguments(&new_server_path),
-            })
-        } else if old_server_path.exists() {
-            Ok(LanguageServerBinary {
-                path: node.binary_path().await?,
-                env: None,
-                arguments: typescript_server_binary_arguments(&old_server_path),
-            })
-        } else {
-            anyhow::bail!("missing executable in directory {container_dir:?}")
-        }
-    })
-    .await
-    .log_err()
-}
+
 
 #[cfg(test)]
 mod tests {
