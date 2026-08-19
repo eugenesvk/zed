@@ -72,8 +72,7 @@ pub struct Zeta2PromptInput {
     pub syntax_ranges: Option<Vec<Range<usize>>>,
     #[serde(default)]
     pub in_open_source_repo: bool,
-    #[serde(default)]
-    pub can_collect_data: bool,
+    
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub repo_url: Option<String>,
 }
@@ -96,8 +95,7 @@ pub struct Zeta3PromptInput {
     pub active_buffer_diagnostics: Vec<ActiveBufferDiagnostic>,
     #[serde(default)]
     pub in_open_source_repo: bool,
-    #[serde(default)]
-    pub can_collect_data: bool,
+    
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub repo_url: Option<String>,
 }
@@ -5551,7 +5549,7 @@ mod tests {
             },
             syntax_ranges: None,
             in_open_source_repo: false,
-            can_collect_data: false,
+            
             repo_url: None,
         }
     }
@@ -5581,7 +5579,7 @@ mod tests {
             },
             syntax_ranges: None,
             in_open_source_repo: false,
-            can_collect_data: false,
+            
             repo_url: None,
         }
     }
@@ -6333,7 +6331,7 @@ mod tests {
             excerpt_ranges: ExcerptRanges::default(),
             syntax_ranges: None,
             in_open_source_repo: false,
-            can_collect_data: false,
+            
             repo_url: None,
         };
 
@@ -6396,7 +6394,7 @@ mod tests {
             excerpt_ranges: ExcerptRanges::default(),
             syntax_ranges: None,
             in_open_source_repo: false,
-            can_collect_data: false,
+            
             repo_url: None,
         };
         let marker_table = hashed_regions::build_marker_table(&input);
@@ -6456,7 +6454,7 @@ mod tests {
             excerpt_ranges: ExcerptRanges::default(),
             syntax_ranges: None,
             in_open_source_repo: false,
-            can_collect_data: false,
+            
             repo_url: None,
         };
         let patch = indoc! {"
@@ -6529,7 +6527,7 @@ mod tests {
             syntax_ranges,
             active_buffer_diagnostics: vec![],
             in_open_source_repo: false,
-            can_collect_data: false,
+            
             repo_url: None,
         };
 
@@ -6565,7 +6563,7 @@ mod tests {
             syntax_ranges: vec![0..excerpt.len()],
             active_buffer_diagnostics: vec![],
             in_open_source_repo: false,
-            can_collect_data: false,
+            
             repo_url: None,
         };
         let output = multi_region::encode_from_old_and_new_v0318(
@@ -6746,7 +6744,7 @@ mod tests {
             },
             syntax_ranges: None,
             in_open_source_repo: false,
-            can_collect_data: false,
+            
             repo_url: None,
         };
 
@@ -6810,7 +6808,7 @@ mod tests {
             },
             syntax_ranges: None,
             in_open_source_repo: false,
-            can_collect_data: false,
+            
             repo_url: None,
         };
 
@@ -6869,7 +6867,7 @@ mod tests {
             },
             syntax_ranges: None,
             in_open_source_repo: false,
-            can_collect_data: false,
+            
             repo_url: None,
         };
 
