@@ -155,7 +155,7 @@ mod tests {
             messages: Vec::new(),
             updated_at,
             detailed_summary: None,
-            initial_project_snapshot: None,
+            
             cumulative_token_usage: Default::default(),
             request_token_usage: HashMap::default(),
             model: None,
