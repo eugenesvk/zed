@@ -715,11 +715,7 @@ impl EditPredictionButton {
                             .handler(move |_, cx| {
                                 provider.toggle_data_collection(cx);
 
-                                if !enabled {
-                                    
-                                } else {
-                                    
-                                }
+                                
                             })
                     );
 
@@ -1127,11 +1123,7 @@ pub fn get_available_providers(cx: &mut App) -> Vec<EditPredictionProvider> {
     providers.push(EditPredictionProvider::Zed);
 
     let app_state = workspace::AppState::global(cx);
-    if copilot::GlobalCopilotAuth::try_get_or_init(app_state, cx)
-        .is_some_and(|copilot| copilot.0.read(cx).is_authenticated())
-    {
-        
-    };
+    ;
 
     if codestral::codestral_api_key(cx).is_some() {
         providers.push(EditPredictionProvider::Codestral);
@@ -1149,12 +1141,7 @@ pub fn get_available_providers(cx: &mut App) -> Vec<EditPredictionProvider> {
         providers.push(EditPredictionProvider::OpenAiCompatibleApi);
     }
 
-    if edit_prediction::mercury::mercury_api_token(cx)
-        .read(cx)
-        .has_key()
-    {
-        
-    }
+    
 
     providers
 }

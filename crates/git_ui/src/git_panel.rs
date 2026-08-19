@@ -3065,13 +3065,7 @@ impl GitPanel {
 
     fn on_commit(&mut self, _: &Commit, window: &mut Window, cx: &mut Context<Self>) {
         let is_amend = self.amend_pending;
-        if self.commit(&self.commit_editor.focus_handle(cx), window, cx) {
-            if is_amend {
-                
-            } else {
-                
-            }
-        }
+        
     }
 
     /// Commits staged changes with the current commit message.
@@ -3095,9 +3089,7 @@ impl GitPanel {
     }
 
     fn on_amend(&mut self, _: &Amend, window: &mut Window, cx: &mut Context<Self>) {
-        if self.amend(&self.commit_editor.focus_handle(cx), window, cx) {
-            
-        }
+        
     }
 
     /// Enters the amend state on first invocation, loading the last commit

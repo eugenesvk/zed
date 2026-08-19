@@ -3370,9 +3370,7 @@ impl Thread {
                 // A successful compaction defers its telemetry until the first
                 // completion that follows it, so `tokens_after` reflects the
                 // real post-compaction context size.
-                if let Some(telemetry) = self.pending_compaction_telemetry.take() {
-                    
-                }
+                
                 self.update_token_usage(usage, cx);
             }
             Stop(StopReason::Refusal) => return Err(CompletionError::Refusal.into()),
@@ -4344,9 +4342,7 @@ impl Thread {
     /// (`"failed"` or `"canceled"`), with no post-compaction token count. A
     /// no-op if no compaction telemetry is pending.
     fn emit_compaction_telemetry_outcome(&mut self, status: &'static str, error: Option<String>) {
-        if let Some(telemetry) = self.pending_compaction_telemetry.take() {
-            
-        }
+        
     }
 
     fn compaction_message_target_ix(&self, cx: &App) -> Option<usize> {

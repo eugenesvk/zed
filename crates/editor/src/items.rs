@@ -944,11 +944,7 @@ impl Item for Editor {
         cx: &mut Context<Self>,
     ) -> Task<Result<()>> {
         // Add meta data tracking # of auto saves
-        if options.autosave {
-            
-        } else {
-            
-        }
+        
 
         let buffers = self.buffer().clone().read(cx).all_buffers();
         let buffers = buffers
