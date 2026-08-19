@@ -1,4 +1,4 @@
-use anthropic::ANTHROPIC_API_URL;
+
 use anyhow::{Context as _, anyhow};
 use gpui::BackgroundExecutor;
 use http_client::{AsyncBody, HttpClient, Method, Request as HttpRequest};

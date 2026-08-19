@@ -49,7 +49,7 @@ use std::{
     time::{Duration, Instant},
 };
 use std::{cmp, pin::Pin};
-use telemetry::Telemetry;
+
 use thiserror::Error;
 use tokio::net::TcpStream;
 use url::Url;
@@ -57,7 +57,7 @@ use util::{ConnectionResult, ResultExt};
 
 pub use llm_token::*;
 pub use rpc::*;
-pub use telemetry_events::Event;
+
 pub use user::*;
 
 static ZED_SERVER_URL: LazyLock<Option<String>> =

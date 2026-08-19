@@ -13,7 +13,7 @@ use language_model::{
     LanguageModelToolResultContent, LanguageModelToolUse, MessageContent, ProviderSettingsView,
     RateLimiter, Role, StopReason, TokenUsage, env_var,
 };
-pub use mistral::{MISTRAL_API_URL, StreamResponse};
+
 pub use settings::MistralAvailableModel as AvailableModel;
 use settings::{Settings, SettingsStore};
 use std::pin::Pin;

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use ai_onboarding::{AgentPanelOnboardingCard, PlanDefinitions};
+
 use client::zed_urls;
 use gpui::{AnyElement, App, IntoElement, RenderOnce, Window};
 use ui::{Divider, Tooltip, prelude::*};

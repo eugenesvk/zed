@@ -18,7 +18,7 @@ use markdown::{
 };
 use project::Project;
 use settings::Settings;
-use telemetry_events::{Event, EventWrapper};
+
 use theme_settings::ThemeSettings;
 use ui::{
     Icon, IconButton, IconName, IconSize, Label, TextSize, Tooltip, WithScrollbar, prelude::*,

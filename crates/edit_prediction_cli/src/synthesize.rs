@@ -4,7 +4,7 @@ use crate::{
     paths::{FAILED_EXAMPLES_DIR, LATEST_FAILED_EXAMPLES_DIR, SYNTHESIZE_STATE_FILE},
     progress::{InfoStyle, Progress, Step, StepProgress},
 };
-use anthropic::ResponseContent;
+
 use anyhow::{Context as _, Result};
 use chrono::Local;
 use collections::{HashMap, HashSet};
@@ -523,7 +523,7 @@ async fn analyze_commit(
     commit: &CommitInfo,
     step_progress: Arc<StepProgress>,
 ) -> Result<Option<ClaudeResponse>> {
-    use anthropic::{Message, RequestContent, Role};
+    
 
     let prompt = build_prompt(repo_url, commit);
     let messages = vec![Message {

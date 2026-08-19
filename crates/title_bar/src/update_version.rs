@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::anyhow;
-use auto_update::{AutoUpdateStatus, AutoUpdater, UpdateCheckType};
+
 use gpui::{Empty, Render};
 use semver::Version;
 use ui::{Tooltip, UpdateButton, prelude::*};

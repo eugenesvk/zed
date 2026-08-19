@@ -13,7 +13,7 @@ use language_model::{
     LanguageModelToolChoice, ProviderSettingsView, RateLimiter, ReasoningEffort,
     SubPageProviderSettings, env_var,
 };
-use opencode::{ApiProtocol, OPENCODE_API_URL, OpenCodeSubscription};
+
 pub use settings::OpenCodeApiProtocol;
 pub use settings::OpenCodeAvailableModel as AvailableModel;
 use settings::{Settings, SettingsStore, update_settings_file};

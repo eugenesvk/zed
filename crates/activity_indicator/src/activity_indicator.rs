@@ -1,4 +1,4 @@
-use auto_update::DismissMessage;
+
 use editor::Editor;
 use extension_host::{ExtensionOperation, ExtensionStore};
 use futures::StreamExt;

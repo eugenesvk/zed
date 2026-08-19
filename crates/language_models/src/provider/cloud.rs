@@ -1,4 +1,4 @@
-use ai_onboarding::YoungAccountBanner;
+
 use anyhow::{Result, anyhow};
 use client::{
     Client, RefreshLlmTokenListener, TelemetrySettings, UserStore, global_llm_token, zed_urls,
@@ -16,7 +16,7 @@ use language_model::{
     LanguageModelProviderState, ProviderSettingsView, ZED_CLOUD_PROVIDER_ID,
     ZED_CLOUD_PROVIDER_NAME,
 };
-use language_models_cloud::{CloudLlmTokenProvider, CloudModelProvider};
+
 use rand::{Rng as _, SeedableRng as _, rngs::StdRng};
 use release_channel::AppVersion;
 
